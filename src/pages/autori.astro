@@ -1,0 +1,52 @@
+---
+import Base from '../layouts/Base.astro';
+import { urlRicetta } from '../lib/percorsi';
+import { tutteLeRicette, tuttiGliAutori } from '../lib/ricettario';
+
+const autori = await tuttiGliAutori();
+const ricette = await tutteLeRicette();
+
+// Astro valida i riferimenti in fase di build: se una ricetta cita un autore inesistente
+// la build fallisce, quindi qui ogni ricetta ha per forza la sua scheda.
+const schede = autori.map((autore) => ({
+  autore,
+  ricette: ricette.filter((r) => r.data.autore.id === autore.id),
+}));
+---
+
+<Base titolo="Autori" descrizione="Chi ha scritto le ricette del ricettario di famiglia.">
+  <div class="contenitore">
+    <section class="sezione-blocco">
+      <h1>Gli autori</h1>
+      <p class="ricetta__descrizione">
+        Ogni ricetta porta la firma di chi l'ha portata in famiglia. Questa pagina finisce anche
+        all'inizio del libro stampato.
+      </p>
+
+      <div class="griglia" style="margin-top:2.5rem;grid-template-columns:repeat(auto-fill,minmax(min(100%,22rem),1fr))">
+        {
+          schede.map(({ autore, ricette: sue }) => (
+            <article class="autore-scheda">
+              {autore.data.relazione && <p class="relazione">{autore.data.relazione}</p>}
+              <h2>{autore.data.nome}</h2>
+              {autore.data.nota && <p class="nota">{autore.data.nota}</p>}
+              {sue.length > 0 ? (
+                <ul class="elenco-inline">
+                  {sue.map((r) => (
+                    <li>
+                      <a href={urlRicetta(r.id)}>{r.data.titolo}</a>
+                    </li>
+                  ))}
+                </ul>
+              ) : (
+                <p style="font-size:.85rem;color:var(--inchiostro-tenue);margin:0">
+                  Nessuna ricetta ancora.
+                </p>
+              )}
+            </article>
+          ))
+        }
+      </div>
+    </section>
+  </div>
+</Base>

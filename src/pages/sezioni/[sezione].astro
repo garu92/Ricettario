@@ -1,0 +1,45 @@
+---
+import type { GetStaticPaths } from 'astro';
+import Base from '../../layouts/Base.astro';
+import CardRicetta from '../../components/CardRicetta.astro';
+import { SEZIONI } from '../../data/sezioni';
+import { mappaAutori, tutteLeRicette } from '../../lib/ricettario';
+
+export const getStaticPaths = (async () => {
+  const ricette = await tutteLeRicette();
+  return SEZIONI.map((sezione) => ({
+    params: { sezione: sezione.id },
+    props: { sezione, ricette: ricette.filter((r) => r.data.sezione === sezione.id) },
+  }));
+}) satisfies GetStaticPaths;
+
+const { sezione, ricette } = Astro.props;
+const autoriPerId = await mappaAutori();
+---
+
+<Base titolo={sezione.nome} descrizione={sezione.descrizione} sezioneAttiva={sezione.id}>
+  <div class="contenitore">
+    <section class="sezione-blocco">
+      <p class="copertina__occhiello" style="text-align:left">
+        <span aria-hidden="true">{sezione.emoji}</span> Sezione
+      </p>
+      <h1>{sezione.nome}</h1>
+      <p class="ricetta__descrizione">{sezione.descrizione}</p>
+
+      {
+        ricette.length === 0 ? (
+          <p class="avviso" style="display:inline-block">
+            Questa sezione è ancora vuota. La prima ricetta che aggiungi con
+            <code>sezione: {sezione.id}</code> comparirà qui.
+          </p>
+        ) : (
+          <div class="griglia" style="margin-top:2rem">
+            {ricette.map((r) => (
+              <CardRicetta ricetta={r} autore={autoriPerId.get(r.data.autore.id)?.data.nome} />
+            ))}
+          </div>
+        )
+      }
+    </section>
+  </div>
+</Base>

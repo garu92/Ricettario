@@ -1,0 +1,76 @@
+---
+import type { GetStaticPaths } from 'astro';
+import { render } from 'astro:content';
+import Base from '../../layouts/Base.astro';
+import BloccoAccessori from '../../components/BloccoAccessori.astro';
+import BloccoIngredienti from '../../components/BloccoIngredienti.astro';
+import BloccoPassaggi from '../../components/BloccoPassaggi.astro';
+import DatiRapidi from '../../components/DatiRapidi.astro';
+import { nomeSezione } from '../../data/sezioni';
+import { formattaData } from '../../lib/formato';
+import { urlHome, urlSezione } from '../../lib/percorsi';
+import { mappaAutori, tutteLeRicette } from '../../lib/ricettario';
+
+export const getStaticPaths = (async () => {
+  const ricette = await tutteLeRicette();
+  return ricette.map((ricetta) => ({ params: { ricetta: ricetta.id }, props: { ricetta } }));
+}) satisfies GetStaticPaths;
+
+const { ricetta } = Astro.props;
+const d = ricetta.data;
+const autore = (await mappaAutori()).get(d.autore.id);
+const { Content } = await render(ricetta);
+---
+
+<Base titolo={d.titolo} descrizione={d.descrizione} sezioneAttiva={d.sezione}>
+  <div class="contenitore ricetta">
+    <p class="ricetta__briciole">
+      <a href={urlHome()}>Ricettario</a> · <a href={urlSezione(d.sezione)}>{nomeSezione(d.sezione)}</a>
+    </p>
+
+    <header class="ricetta__testata">
+      {d.esempio && <span class="etichetta etichetta--esempio">ricetta di prova</span>}
+      <h1>{d.titolo}</h1>
+      <p class="ricetta__firma">di {autore?.data.nome ?? d.autore.id}</p>
+      {d.descrizione && <p class="ricetta__descrizione">{d.descrizione}</p>}
+      <DatiRapidi ricetta={ricetta} />
+    </header>
+
+    <div class="ricetta__corpo">
+      <aside class="colonna-laterale">
+        <BloccoIngredienti ricetta={ricetta} />
+        <BloccoAccessori ricetta={ricetta} />
+        {
+          d.conservazione && (
+            <section class="riquadro">
+              <h2>Conservazione</h2>
+              <p style="margin:0">{d.conservazione}</p>
+            </section>
+          )
+        }
+      </aside>
+
+      <div>
+        <BloccoPassaggi ricetta={ricetta} />
+
+        {
+          d.note && (
+            <section class="blocco-note">
+              <h2>Note</h2>
+              <p>{d.note}</p>
+            </section>
+          )
+        }
+
+        <div class="corpo-markdown">
+          <Content />
+        </div>
+
+        <p style="margin-top:3rem;font-size:.82rem;color:var(--inchiostro-tenue)">
+          {d.fonte && <>Fonte: {d.fonte}. </>}
+          {d.dataInserimento && <>Nel ricettario dal {formattaData(d.dataInserimento)}.</>}
+        </p>
+      </div>
+    </div>
+  </div>
+</Base>

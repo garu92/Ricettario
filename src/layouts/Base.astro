@@ -1,0 +1,85 @@
+---
+import '@fontsource/eb-garamond/400.css';
+import '@fontsource/eb-garamond/600.css';
+import '@fontsource/eb-garamond/400-italic.css';
+import '@fontsource/inter/400.css';
+import '@fontsource/inter/500.css';
+import '@fontsource/inter/600.css';
+import '../styles/sito.css';
+
+import { SEZIONI } from '../data/sezioni';
+import versione from '../data/versione.json';
+import { urlAutori, urlCerca, urlHome, urlPdf, urlSezione } from '../lib/percorsi';
+
+interface Props {
+  titolo: string;
+  descrizione?: string;
+  /** Sezione attiva, per evidenziare la voce di menu. */
+  sezioneAttiva?: string;
+}
+
+const { titolo, descrizione, sezioneAttiva } = Astro.props;
+const titoloPagina = titolo === 'Ricettario Marano' ? titolo : `${titolo} · Ricettario Marano`;
+const percorsoCorrente = Astro.url.pathname;
+---
+
+<!doctype html>
+<html lang="it">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>{titoloPagina}</title>
+    {descrizione && <meta name="description" content={descrizione} />}
+    <meta name="generator" content={Astro.generator} />
+    <meta property="og:title" content={titoloPagina} />
+    {descrizione && <meta property="og:description" content={descrizione} />}
+    <meta property="og:type" content="website" />
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>📖</text></svg>" />
+  </head>
+  <body>
+    <header class="testata">
+      <div class="contenitore testata__interno">
+        <a class="marchio" href={urlHome()}>
+          Ricettario
+          <small>Famiglia Marano</small>
+        </a>
+        <nav class="navigazione" aria-label="Sezioni del ricettario">
+          {
+            SEZIONI.map((s) => (
+              <a
+                href={urlSezione(s.id)}
+                aria-current={sezioneAttiva === s.id ? 'page' : undefined}
+              >
+                {s.nome}
+              </a>
+            ))
+          }
+          <a href={urlAutori()} aria-current={percorsoCorrente.includes('/autori') ? 'page' : undefined}>
+            Autori
+          </a>
+          <a href={urlCerca()} aria-current={percorsoCorrente.includes('/cerca') ? 'page' : undefined}>
+            Cerca
+          </a>
+          <a class="pulsante-pdf" href={urlPdf()} download>PDF ↓</a>
+        </nav>
+      </div>
+    </header>
+
+    <main id="contenuto">
+      <slot />
+    </main>
+
+    <footer class="fondo">
+      <div class="contenitore fondo__interno">
+        <p>
+          Ricettario della famiglia Marano.<br />
+          Le ricette restano di chi le ha inventate, i risultati di chi le cucina.
+        </p>
+        <p class="versione-etichetta">
+          Edizione <strong>v{versione.versione}</strong> del {versione.data}<br />
+          <a href={urlPdf()} download>Scarica il libro in PDF</a>
+        </p>
+      </div>
+    </footer>
+  </body>
+</html>

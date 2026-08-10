@@ -1,0 +1,702 @@
+/* =========================================================================
+   Ricettario Marano — foglio di stile del libro stampato.
+
+   Questo CSS non serve il sito: viene impaginato da Paged.js e stampato da
+   Chromium in formato A5. Ogni regola qui dentro esiste per la carta.
+   ========================================================================= */
+
+:root {
+  --nero: #1b1b1b;
+  --grigio: #5c5750;
+  --filo: #cfc7b8;
+  --rosso: #8c3a24;
+  --serif: 'EB Garamond', Georgia, serif;
+  --sans: 'Inter', system-ui, sans-serif;
+}
+
+/* ---------- Formato e margini ------------------------------------------- */
+
+@page {
+  size: A5;
+  /* Margine interno più largo: è il lato che finisce nella rilegatura. */
+  margin: 16mm 15mm 18mm 15mm;
+
+  @bottom-center {
+    content: counter(page);
+    font-family: var(--sans);
+    font-size: 8pt;
+    color: #5c5750;
+    padding-top: 4mm;
+  }
+}
+
+@page :left {
+  margin-left: 14mm;
+  margin-right: 19mm;
+
+  @top-left {
+    content: string(sezioneCorrente);
+    font-family: 'Inter', sans-serif;
+    font-size: 7.5pt;
+    letter-spacing: 0.09em;
+    text-transform: uppercase;
+    color: #5c5750;
+    padding-bottom: 3mm;
+  }
+}
+
+@page :right {
+  margin-left: 19mm;
+  margin-right: 14mm;
+
+  @top-right {
+    content: string(ricettaCorrente);
+    font-family: 'Inter', sans-serif;
+    font-size: 7.5pt;
+    letter-spacing: 0.09em;
+    text-transform: uppercase;
+    color: #5c5750;
+    padding-bottom: 3mm;
+    /* I riquadri di margine di Paged.js non ereditano l'allineamento dalla posizione. */
+    text-align: right;
+  }
+}
+
+/* Pagine senza testatina né numero: copertina e occhielli di sezione. */
+@page nuda {
+  @top-left { content: none; }
+  @top-right { content: none; }
+  @bottom-center { content: none; }
+}
+
+/*
+ * Ogni sezione si apre su pagina destra (break-before: right): quando serve, Paged.js
+ * inserisce una pagina vuota a sinistra. In un libro le pagine bianche non si numerano.
+ */
+.pagedjs_blank_page .pagedjs_margin-bottom-center,
+.pagedjs_blank_page .pagedjs_margin-top-left,
+.pagedjs_blank_page .pagedjs_margin-top-right {
+  display: none;
+}
+
+/* ---------- Impostazioni generali ---------------------------------------- */
+
+* {
+  box-sizing: border-box;
+}
+
+html {
+  font-size: 10.5pt;
+}
+
+body {
+  margin: 0;
+  font-family: var(--serif);
+  color: var(--nero);
+  line-height: 1.42;
+  text-align: justify;
+  /* Senza questo l'ultima riga di ogni paragrafo viene stirata da bordo a bordo. */
+  text-align-last: left;
+  hyphens: auto;
+  -webkit-hyphens: auto;
+  orphans: 2;
+  widows: 2;
+}
+
+/*
+ * text-align-last vale anche per le righe che finiscono con un <br>: senza questo
+ * i blocchi centrati (copertina, occhielli, colophon) verrebbero allineati a sinistra.
+ */
+.copertina-libro,
+.copertina-libro h1,
+.copertina-libro .impronta,
+.occhiello,
+.occhiello h2,
+.occhiello .descrizione-sezione,
+.colophon,
+.colophon div {
+  text-align: center;
+  text-align-last: center;
+}
+
+h1,
+h2,
+h3,
+h4 {
+  font-family: var(--serif);
+  font-weight: 600;
+  line-height: 1.1;
+  text-align: left;
+  hyphens: none;
+  break-after: avoid;
+}
+
+p {
+  margin: 0 0 0.55em;
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+/* ---------- Copertina ---------------------------------------------------- */
+
+.copertina-libro {
+  page: nuda;
+  break-after: page;
+  /* A5 (210mm) meno i margini verticali: riempie esattamente la pagina. */
+  height: 176mm;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+}
+
+.copertina-libro__fregio {
+  font-size: 22pt;
+  letter-spacing: 0.4em;
+  color: var(--rosso);
+  margin-bottom: 10mm;
+}
+
+.copertina-libro h1 {
+  font-size: 30pt;
+  text-align: center;
+  margin: 0;
+  line-height: 1.05;
+}
+
+.copertina-libro .sottotitolo {
+  font-family: var(--sans);
+  font-size: 8.5pt;
+  letter-spacing: 0.32em;
+  text-transform: uppercase;
+  color: var(--grigio);
+  margin-top: 6mm;
+}
+
+.copertina-libro .riga {
+  width: 28mm;
+  border-top: 1px solid var(--filo);
+  margin: 10mm 0;
+}
+
+.copertina-libro .impronta {
+  font-family: var(--sans);
+  font-size: 8pt;
+  color: var(--grigio);
+  line-height: 1.7;
+  text-align: center;
+}
+
+.copertina-libro .impronta strong {
+  font-weight: 600;
+  color: var(--nero);
+}
+
+/* ---------- Pagine di apertura (autori, indici) -------------------------- */
+
+.pagina {
+  break-before: page;
+}
+
+.pagina > h2,
+.indice > h2,
+.indice-alfabetico > h2 {
+  font-size: 17pt;
+  margin: 0 0 2mm;
+}
+
+.sottotitolo-pagina {
+  font-family: var(--sans);
+  font-size: 8pt;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--rosso);
+  margin-bottom: 6mm;
+  text-align: left;
+}
+
+/* ---------- Autori ------------------------------------------------------- */
+
+.autore-libro {
+  break-inside: avoid;
+  margin-bottom: 6mm;
+  padding-bottom: 5mm;
+  border-bottom: 1px solid var(--filo);
+}
+
+.autore-libro:last-child {
+  border-bottom: 0;
+}
+
+.autore-libro h3 {
+  font-size: 13pt;
+  margin: 0;
+}
+
+.autore-libro .relazione {
+  font-family: var(--sans);
+  font-size: 7pt;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--rosso);
+  margin-bottom: 1mm;
+}
+
+.autore-libro .nota {
+  margin: 1.5mm 0 2mm;
+  color: var(--grigio);
+}
+
+.autore-libro .sue-ricette {
+  font-family: var(--sans);
+  font-size: 8pt;
+  color: var(--grigio);
+  text-align: left;
+}
+
+/* ---------- Indice generale ---------------------------------------------- */
+
+/* Negli indici il testo non si giustifica mai: le voci corte si stirerebbero. */
+.indice,
+.indice-alfabetico {
+  text-align: left;
+}
+
+.indice ol {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.indice .voce-sezione {
+  break-inside: avoid;
+  margin-top: 5mm;
+}
+
+/* Riga d'indice: titolo, puntini elastici e numero di pagina. */
+.riga-indice {
+  display: flex;
+  align-items: baseline;
+  gap: 1.5mm;
+}
+
+.indice .riga-sezione {
+  gap: 2mm;
+  font-family: var(--sans);
+  font-size: 9pt;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--rosso);
+  padding-bottom: 1.5mm;
+  border-bottom: 1px solid var(--filo);
+}
+
+.indice .voce-ricetta {
+  padding-top: 1.6mm;
+  break-inside: avoid;
+}
+
+.indice .titolo-voce {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 78%;
+}
+
+.indice .autore-voce {
+  font-family: var(--sans);
+  font-size: 7.5pt;
+  color: var(--grigio);
+  white-space: nowrap;
+}
+
+/* La linea di puntini si allunga da sola fino al numero di pagina. */
+.puntini {
+  flex: 1 1 auto;
+  border-bottom: 1.2pt dotted var(--filo);
+  transform: translateY(-1mm);
+  min-width: 6mm;
+}
+
+/*
+ * Il numero di pagina non è scritto nell'HTML: lo calcola Paged.js seguendo
+ * l'ancora del link. È il motivo per cui l'indice resta corretto anche quando
+ * si aggiunge una ricetta in mezzo al libro.
+ */
+.riga-indice::after {
+  content: target-counter(attr(href), page);
+  font-family: var(--sans);
+  font-size: 8.5pt;
+  font-variant-numeric: tabular-nums;
+  color: var(--grigio);
+  white-space: nowrap;
+}
+
+.indice .riga-sezione::after {
+  color: var(--rosso);
+  font-size: 9pt;
+}
+
+/* ---------- Occhiello di sezione ----------------------------------------- */
+
+.occhiello {
+  page: nuda;
+  break-before: right;
+  break-after: page;
+  /* A5 (210mm) meno i margini verticali: riempie esattamente la pagina. */
+  height: 176mm;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  text-align: center;
+  align-items: center;
+}
+
+.occhiello .emoji {
+  font-size: 20pt;
+  margin-bottom: 6mm;
+}
+
+.occhiello h2 {
+  font-size: 24pt;
+  text-align: center;
+  margin: 0;
+  /* Alimenta la testatina delle pagine sinistre fino alla sezione successiva. */
+  string-set: sezioneCorrente content(text);
+}
+
+.occhiello .descrizione-sezione {
+  max-width: 72%;
+  margin-top: 5mm;
+  color: var(--grigio);
+  font-style: italic;
+  text-align: center;
+}
+
+.occhiello .conteggio {
+  font-family: var(--sans);
+  font-size: 7.5pt;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--rosso);
+  margin-top: 8mm;
+}
+
+/* ---------- Ricetta ------------------------------------------------------ */
+
+.ricetta-libro {
+  break-before: page;
+}
+
+.ricetta-libro h3.titolo-ricetta {
+  font-size: 19pt;
+  margin: 0 0 1mm;
+  string-set: ricettaCorrente content(text);
+}
+
+.ricetta-libro .firma {
+  font-family: var(--sans);
+  font-size: 8pt;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--rosso);
+  margin-bottom: 3mm;
+}
+
+.ricetta-libro .occhiello-ricetta {
+  font-style: italic;
+  color: var(--grigio);
+  margin-bottom: 4mm;
+}
+
+/* Riga dei dati: porzioni, tempi, difficoltà. */
+.dati-libro {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0 5mm;
+  margin: 0 0 5mm;
+  padding: 2.5mm 0;
+  border-top: 1px solid var(--filo);
+  border-bottom: 1px solid var(--filo);
+  break-inside: avoid;
+  break-after: avoid;
+}
+
+.dati-libro div {
+  display: flex;
+  flex-direction: column;
+}
+
+.dati-libro dt {
+  font-family: var(--sans);
+  font-size: 6.5pt;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--grigio);
+}
+
+.dati-libro dd {
+  margin: 0;
+  font-size: 10pt;
+  font-variant-numeric: tabular-nums;
+}
+
+.blocchi-libro {
+  break-inside: avoid;
+  margin-bottom: 5mm;
+}
+
+.riquadro-libro {
+  padding: 3.5mm 4mm;
+  background: #f7f3ea;
+  border: 0.5pt solid var(--filo);
+  break-inside: avoid;
+  margin-bottom: 4mm;
+}
+
+.riquadro-libro > h4 {
+  font-family: var(--sans);
+  font-size: 7pt;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--rosso);
+  margin: 0 0 2mm;
+}
+
+.riquadro-libro .gruppo-libro + .gruppo-libro {
+  margin-top: 3mm;
+}
+
+.riquadro-libro .gruppo-libro h5 {
+  font-family: var(--sans);
+  font-size: 7.5pt;
+  font-weight: 600;
+  margin: 0 0 1mm;
+  color: var(--nero);
+}
+
+/* Le liste di ingredienti vanno su due colonne: in A5 su una sola sprecherebbero mezza pagina. */
+.lista-ingredienti {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  columns: 2;
+  column-gap: 6mm;
+  font-size: 9.5pt;
+}
+
+.lista-ingredienti li {
+  break-inside: avoid;
+  display: flex;
+  justify-content: space-between;
+  gap: 2mm;
+  padding: 0.6mm 0;
+  text-align: left;
+}
+
+.lista-ingredienti .dose {
+  color: var(--grigio);
+  white-space: nowrap;
+  font-variant-numeric: tabular-nums;
+}
+
+.lista-ingredienti .nota-ing {
+  display: block;
+  font-size: 8pt;
+  font-style: italic;
+  color: var(--grigio);
+}
+
+.lista-accessori {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  columns: 2;
+  column-gap: 6mm;
+  font-size: 9.5pt;
+}
+
+.lista-accessori li {
+  break-inside: avoid;
+  padding: 0.5mm 0;
+  text-align: left;
+}
+
+.lista-accessori li::before {
+  content: '·';
+  color: var(--rosso);
+  margin-right: 1.5mm;
+}
+
+.passaggi-libro {
+  list-style: none;
+  counter-reset: passo;
+  margin: 0;
+  padding: 0;
+}
+
+.passaggi-libro > li {
+  counter-increment: passo;
+  display: grid;
+  grid-template-columns: 6mm 1fr;
+  gap: 3mm;
+  margin-bottom: 3.5mm;
+  /* Un passaggio spezzato fra due pagine si legge male: si sposta intero. */
+  break-inside: avoid;
+}
+
+.passaggi-libro > li::before {
+  content: counter(passo);
+  font-family: var(--sans);
+  font-size: 9pt;
+  font-weight: 600;
+  color: var(--rosso);
+  text-align: right;
+  padding-top: 0.4mm;
+}
+
+.passaggi-libro h5 {
+  font-family: var(--sans);
+  font-size: 8.5pt;
+  margin: 0 0 0.8mm;
+}
+
+.passaggi-libro .durata-passo {
+  display: block;
+  font-family: var(--sans);
+  font-size: 7.5pt;
+  color: var(--grigio);
+  text-align: left;
+}
+
+.note-libro {
+  margin-top: 4mm;
+  padding-left: 3mm;
+  border-left: 1.5pt solid var(--rosso);
+  font-style: italic;
+  color: var(--grigio);
+  font-size: 9.5pt;
+  break-inside: avoid;
+}
+
+.note-libro strong {
+  font-style: normal;
+  font-family: var(--sans);
+  font-size: 7pt;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--rosso);
+  display: block;
+  margin-bottom: 1mm;
+}
+
+.corpo-libero {
+  margin-top: 4mm;
+  font-size: 9.5pt;
+}
+
+.corpo-libero h2,
+.corpo-libero h3 {
+  font-size: 10.5pt;
+  font-family: var(--sans);
+  margin: 3mm 0 1mm;
+}
+
+.corpo-libero blockquote {
+  margin: 3mm 0;
+  padding-left: 3mm;
+  border-left: 1pt solid var(--filo);
+  font-style: italic;
+  color: var(--grigio);
+}
+
+.pie-ricetta {
+  margin-top: 4mm;
+  font-family: var(--sans);
+  font-size: 7pt;
+  color: var(--grigio);
+  text-align: left;
+}
+
+/* ---------- Indice alfabetico -------------------------------------------- */
+
+.indice-alfabetico ul {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  columns: 2;
+  column-gap: 8mm;
+  font-size: 9.5pt;
+}
+
+.indice-alfabetico li {
+  break-inside: avoid;
+  padding: 0.8mm 0;
+}
+
+.indice-alfabetico .riga-indice {
+  font-size: 9.5pt;
+}
+
+/* Chiude la testatina dell'ultima sezione: da qui in poi si è fuori dal corpo del libro. */
+.indice-alfabetico > h2 {
+  string-set: sezioneCorrente content(text), ricettaCorrente '';
+}
+
+.indice-alfabetico .lettera {
+  break-inside: avoid;
+  break-after: avoid;
+  font-family: var(--sans);
+  font-size: 8pt;
+  font-weight: 600;
+  letter-spacing: 0.14em;
+  color: var(--rosso);
+  margin-top: 3mm;
+  padding-bottom: 0.8mm;
+  border-bottom: 0.5pt solid var(--filo);
+}
+
+/* ---------- Colophon ----------------------------------------------------- */
+
+.colophon {
+  break-before: page;
+  page: nuda;
+  /* A5 (210mm) meno i margini verticali: riempie esattamente la pagina. */
+  height: 176mm;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  align-items: center;
+  text-align: center;
+  font-family: var(--sans);
+  font-size: 7.5pt;
+  color: var(--grigio);
+  line-height: 1.8;
+}
+
+/* ---------- Anteprima a schermo ------------------------------------------ */
+
+/*
+ * Aprendo /stampa/ nel browser si vede il libro impaginato pagina per pagina:
+ * è l'anteprima che si usa per controllare il PDF senza rigenerarlo.
+ */
+@media screen {
+  body {
+    background: #e8e3d9;
+  }
+
+  .pagedjs_pages {
+    padding: 10mm 0;
+  }
+
+  .pagedjs_page {
+    background: #fff;
+    box-shadow: 0 2px 12px rgba(0, 0, 0, 0.18);
+    margin: 0 auto 8mm;
+  }
+}

@@ -1,0 +1,194 @@
+---
+import '@fontsource/eb-garamond/400.css';
+import '@fontsource/eb-garamond/600.css';
+import '@fontsource/eb-garamond/400-italic.css';
+import '@fontsource/inter/400.css';
+import '@fontsource/inter/600.css';
+import '../styles/libro.css';
+
+import RicettaLibro from '../components/RicettaLibro.astro';
+import versione from '../data/versione.json';
+import { formattaData } from '../lib/formato';
+import { collatore, mappaAutori, sezioniPopolate, tutteLeRicette, tuttiGliAutori } from '../lib/ricettario';
+
+/*
+ * Questa pagina è il libro intero in un solo documento: è la sorgente da cui
+ * `npm run pdf` genera il PDF stampabile. Non ha navigazione né interfaccia,
+ * solo il contenuto impaginato da Paged.js.
+ */
+
+const sezioni = await sezioniPopolate();
+const ricette = await tutteLeRicette();
+const autori = await tuttiGliAutori();
+const autoriPerId = await mappaAutori();
+
+const nomeDi = (id: string) => autoriPerId.get(id)?.data.nome ?? id;
+
+/** Indice alfabetico raggruppato per iniziale. */
+const perIniziale = new Map<string, typeof ricette>();
+for (const r of ricette) {
+  const iniziale = r.data.titolo
+    .normalize('NFD')
+    .replace(/[̀-ͯ]/g, '')
+    .charAt(0)
+    .toUpperCase();
+  if (!perIniziale.has(iniziale)) perIniziale.set(iniziale, []);
+  perIniziale.get(iniziale)!.push(r);
+}
+const iniziali = [...perIniziale.keys()].sort(collatore.compare);
+
+const dataStampa = formattaData(new Date(versione.data));
+---
+
+<!doctype html>
+<html lang="it">
+  <head>
+    <meta charset="utf-8" />
+    <title>Ricettario della famiglia Marano — v{versione.versione}</title>
+    <meta name="author" content={autori.map((a) => a.data.nome).join(', ')} />
+    <meta
+      name="description"
+      content={`Ricettario della famiglia Marano, edizione ${versione.versione} del ${versione.data}.`}
+    />
+
+    <!--
+      Paged.js impagina il documento in pagine A5 dentro il browser: numeri di pagina
+      dell'indice, testatine correnti e numerazione nascono qui. Il flag data-paginato
+      è il segnale che lo script di generazione aspetta prima di chiedere a Chromium
+      di stampare: senza, il PDF uscirebbe a impaginazione incompleta.
+    -->
+    <script>
+      import { Previewer } from 'pagedjs';
+
+      const anteprima = new Previewer();
+      anteprima
+        .preview()
+        .then((flusso) => {
+          document.documentElement.dataset.pagine = String(flusso.total);
+          document.documentElement.dataset.paginato = 'ok';
+        })
+        .catch((errore) => {
+          document.documentElement.dataset.paginato = 'errore';
+          console.error('Paged.js:', errore);
+        });
+    </script>
+  </head>
+
+  <body>
+    <!-- ---------- Copertina ---------- -->
+    <section class="copertina-libro">
+      <div class="copertina-libro__fregio">❦</div>
+      <h1>Il ricettario<br />della famiglia<br />Marano</h1>
+      <p class="sottotitolo">Ricette di casa</p>
+      <div class="riga"></div>
+      <div class="impronta">
+        Edizione <strong>v{versione.versione}</strong><br />
+        {dataStampa}<br />
+        {ricette.length} ricette · {sezioni.length} sezioni · {autori.length} autori
+      </div>
+    </section>
+
+    <!-- ---------- Autori ---------- -->
+    <section class="pagina">
+      <p class="sottotitolo-pagina">Chi ha scritto questo libro</p>
+      <h2>Gli autori</h2>
+      {
+        autori.map((autore) => {
+          const sue = ricette.filter((r) => r.data.autore.id === autore.id);
+          return (
+            <div class="autore-libro">
+              {autore.data.relazione && <p class="relazione">{autore.data.relazione}</p>}
+              <h3>{autore.data.nome}</h3>
+              {autore.data.nota && <p class="nota">{autore.data.nota}</p>}
+              {sue.length > 0 && (
+                <p class="sue-ricette">
+                  {sue.length === 1 ? 'Ricetta: ' : 'Ricette: '}
+                  {sue.map((r) => r.data.titolo).join(' · ')}
+                </p>
+              )}
+            </div>
+          );
+        })
+      }
+    </section>
+
+    <!-- ---------- Indice generale ---------- -->
+    <section class="pagina indice">
+      <p class="sottotitolo-pagina">Dove trovare cosa</p>
+      <h2>Indice</h2>
+      {
+        sezioni.map(({ sezione, ricette: sue }) => (
+          <div class="voce-sezione">
+            <a class="riga-indice riga-sezione" href={`#sez-${sezione.id}`}>
+              <span class="titolo-voce">{sezione.nome}</span>
+              <span class="puntini" />
+            </a>
+            <ol>
+              {sue.map((r) => (
+                <li class="voce-ricetta">
+                  <a class="riga-indice" href={`#ric-${r.id}`}>
+                    <span class="titolo-voce">{r.data.titolo}</span>
+                    <span class="autore-voce">{nomeDi(r.data.autore.id)}</span>
+                    <span class="puntini" />
+                  </a>
+                </li>
+              ))}
+            </ol>
+          </div>
+        ))
+      }
+    </section>
+
+    <!-- ---------- Sezioni e ricette ---------- -->
+    {
+      sezioni.map(({ sezione, ricette: sue }) => (
+        <>
+          <section class="occhiello" id={`sez-${sezione.id}`}>
+            <div class="emoji">{sezione.emoji}</div>
+            <h2>{sezione.nome}</h2>
+            <p class="descrizione-sezione">{sezione.descrizione}</p>
+            <p class="conteggio">{sue.length === 1 ? '1 ricetta' : `${sue.length} ricette`}</p>
+          </section>
+          {sue.map((r) => (
+            <RicettaLibro ricetta={r} autore={nomeDi(r.data.autore.id)} />
+          ))}
+        </>
+      ))
+    }
+
+    <!-- ---------- Indice alfabetico ---------- -->
+    <section class="pagina indice-alfabetico">
+      <p class="sottotitolo-pagina">Tutte le ricette in ordine</p>
+      <h2>Indice alfabetico</h2>
+      {
+        iniziali.map((lettera) => (
+          <>
+            <p class="lettera">{lettera}</p>
+            <ul>
+              {perIniziale.get(lettera)!.map((r) => (
+                <li>
+                  <a class="riga-indice" href={`#ric-${r.id}`}>
+                    <span class="titolo-voce">{r.data.titolo}</span>
+                    <span class="puntini" />
+                  </a>
+                </li>
+              ))}
+            </ul>
+          </>
+        ))
+      }
+    </section>
+
+    <!-- ---------- Colophon ---------- -->
+    <section class="colophon">
+      <div>
+        Ricettario della famiglia Marano<br />
+        Edizione v{versione.versione} — {dataStampa}<br />
+        {versione.commit !== 'locale' && <>Revisione {versione.commit}<br /></>}
+        <br />
+        Composto automaticamente a ogni aggiornamento del ricettario.<br />
+        Le ricette restano di chi le ha inventate.
+      </div>
+    </section>
+  </body>
+</html>

@@ -1,0 +1,115 @@
+---
+import { render } from 'astro:content';
+import { formattaDose, formattaDurata, formattaPorzioni, tempoTotale } from '../lib/formato';
+import type { Ricetta } from '../lib/ricettario';
+
+interface Props {
+  ricetta: Ricetta;
+  autore: string;
+}
+
+const { ricetta, autore } = Astro.props;
+const d = ricetta.data;
+const { Content } = await render(ricetta);
+
+const dati = [
+  { etichetta: 'Porzioni', valore: formattaPorzioni(d.porzioni, d.unitaPorzioni) },
+  { etichetta: 'Preparazione', valore: formattaDurata(d.tempoPreparazione) },
+  ...(d.tempoCottura > 0 ? [{ etichetta: 'Cottura', valore: formattaDurata(d.tempoCottura) }] : []),
+  ...(d.tempoRiposo > 0 ? [{ etichetta: 'Riposo', valore: formattaDurata(d.tempoRiposo) }] : []),
+  { etichetta: 'Totale', valore: formattaDurata(tempoTotale(d)) },
+  { etichetta: 'Difficoltà', valore: d.difficolta },
+];
+---
+
+<article class="ricetta-libro" id={`ric-${ricetta.id}`}>
+  <h3 class="titolo-ricetta">{d.titolo}</h3>
+  <p class="firma">di {autore}</p>
+  {d.descrizione && <p class="occhiello-ricetta">{d.descrizione}</p>}
+
+  <dl class="dati-libro">
+    {
+      dati.map((v) => (
+        <div>
+          <dt>{v.etichetta}</dt>
+          <dd>{v.valore}</dd>
+        </div>
+      ))
+    }
+  </dl>
+
+  <section class="riquadro-libro">
+    <h4>Ingredienti</h4>
+    {
+      d.ingredienti.map((gruppo) => (
+        <div class="gruppo-libro">
+          {gruppo.gruppo && <h5>{gruppo.gruppo}</h5>}
+          <ul class="lista-ingredienti">
+            {gruppo.voci.map((voce) => (
+              <li>
+                <span>
+                  {voce.nome}
+                  {voce.note && <span class="nota-ing">{voce.note}</span>}
+                </span>
+                <span class="dose">{formattaDose(voce.quantita, voce.unita)}</span>
+              </li>
+            ))}
+          </ul>
+        </div>
+      ))
+    }
+  </section>
+
+  {
+    d.accessori.length > 0 && (
+      <section class="riquadro-libro">
+        <h4>Occorrente</h4>
+        <ul class="lista-accessori">
+          {d.accessori.map((a) => (
+            <li>{a}</li>
+          ))}
+        </ul>
+      </section>
+    )
+  }
+
+  <ol class="passaggi-libro">
+    {
+      d.passaggi.map((p) => (
+        <li>
+          <div>
+            {p.titolo && <h5>{p.titolo}</h5>}
+            <p>{p.testo}</p>
+            {p.durata !== undefined && p.durata > 0 && (
+              <span class="durata-passo">{formattaDurata(p.durata)}</span>
+            )}
+          </div>
+        </li>
+      ))
+    }
+  </ol>
+
+  {
+    d.conservazione && (
+      <p class="note-libro">
+        <strong>Conservazione</strong>
+        {d.conservazione}
+      </p>
+    )
+  }
+
+  {
+    d.note && (
+      <p class="note-libro">
+        <strong>Note</strong>
+        {d.note}
+      </p>
+    )
+  }
+
+  <div class="corpo-libero">
+    <Content />
+  </div>
+
+  {d.fonte && <p class="pie-ricetta">Fonte: {d.fonte}</p>}
+</article>

@@ -1,0 +1,771 @@
+/* =========================================================================
+   Ricettario Marano — stile del sito
+   Il libro stampato ha il suo foglio di stile dedicato (libro.css).
+   ========================================================================= */
+
+:root {
+  --carta: #faf7f0;
+  --carta-alt: #f2ece0;
+  --carta-scheda: #fffdf8;
+  --inchiostro: #2c2723;
+  --inchiostro-tenue: #6b6259;
+  --bordo: #e0d7c6;
+  --accento: #a8452c;
+  --accento-tenue: #f6e7e1;
+  --oliva: #6a7a4a;
+  --ombra: 0 1px 2px rgba(44, 39, 35, 0.06), 0 8px 24px -12px rgba(44, 39, 35, 0.18);
+
+  --serif: 'EB Garamond', 'Iowan Old Style', Georgia, serif;
+  --sans: 'Inter', system-ui, -apple-system, 'Segoe UI', sans-serif;
+
+  --larghezza: 68rem;
+  --raggio: 10px;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --carta: #17140f;
+    --carta-alt: #201c16;
+    --carta-scheda: #221e18;
+    --inchiostro: #f0e9dd;
+    --inchiostro-tenue: #a99f91;
+    --bordo: #373026;
+    --accento: #e59078;
+    --accento-tenue: #3a231c;
+    --oliva: #a3b57a;
+    --ombra: 0 1px 2px rgba(0, 0, 0, 0.4), 0 8px 24px -12px rgba(0, 0, 0, 0.7);
+  }
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  margin: 0;
+  background: var(--carta);
+  color: var(--inchiostro);
+  font-family: var(--sans);
+  font-size: 17px;
+  line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
+}
+
+h1,
+h2,
+h3,
+h4 {
+  font-family: var(--serif);
+  font-weight: 600;
+  line-height: 1.15;
+  margin: 0 0 0.4em;
+  letter-spacing: -0.01em;
+}
+
+h1 {
+  font-size: clamp(2.1rem, 5vw, 3.1rem);
+}
+h2 {
+  font-size: clamp(1.5rem, 3vw, 2rem);
+}
+h3 {
+  font-size: 1.25rem;
+}
+
+a {
+  color: inherit;
+  text-decoration-color: color-mix(in srgb, var(--accento) 45%, transparent);
+  text-underline-offset: 3px;
+}
+
+a:hover {
+  text-decoration-color: var(--accento);
+}
+
+img {
+  max-width: 100%;
+  height: auto;
+}
+
+.contenitore {
+  width: min(100% - 2.5rem, var(--larghezza));
+  margin-inline: auto;
+}
+
+.solo-lettori {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
+/* ---------- Testata ------------------------------------------------------ */
+
+.testata {
+  border-bottom: 1px solid var(--bordo);
+  background: color-mix(in srgb, var(--carta) 88%, transparent);
+  backdrop-filter: blur(8px);
+  position: sticky;
+  top: 0;
+  z-index: 10;
+}
+
+.testata__interno {
+  display: flex;
+  align-items: center;
+  gap: 1.5rem;
+  padding-block: 0.85rem;
+  flex-wrap: wrap;
+}
+
+.marchio {
+  font-family: var(--serif);
+  font-size: 1.35rem;
+  font-weight: 600;
+  text-decoration: none;
+  line-height: 1.1;
+  display: flex;
+  flex-direction: column;
+}
+
+.marchio small {
+  font-family: var(--sans);
+  font-size: 0.68rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--inchiostro-tenue);
+  font-weight: 500;
+}
+
+.navigazione {
+  display: flex;
+  gap: 1.1rem;
+  margin-left: auto;
+  flex-wrap: wrap;
+  font-size: 0.92rem;
+}
+
+.navigazione a {
+  text-decoration: none;
+  color: var(--inchiostro-tenue);
+  padding-block: 0.2rem;
+  border-bottom: 2px solid transparent;
+}
+
+.navigazione a:hover,
+.navigazione a[aria-current='page'] {
+  color: var(--inchiostro);
+  border-bottom-color: var(--accento);
+}
+
+.navigazione .pulsante-pdf {
+  border: 1px solid var(--bordo);
+  border-radius: 999px;
+  padding: 0.25rem 0.85rem;
+  background: var(--carta-scheda);
+}
+
+/* ---------- Fondo pagina ------------------------------------------------- */
+
+.fondo {
+  margin-top: 5rem;
+  border-top: 1px solid var(--bordo);
+  padding-block: 2.5rem 3.5rem;
+  color: var(--inchiostro-tenue);
+  font-size: 0.87rem;
+}
+
+.fondo__interno {
+  display: flex;
+  gap: 1.5rem;
+  justify-content: space-between;
+  flex-wrap: wrap;
+}
+
+.versione-etichetta {
+  font-variant-numeric: tabular-nums;
+  font-family: var(--sans);
+}
+
+/* ---------- Copertina della home ---------------------------------------- */
+
+.copertina {
+  padding-block: clamp(3rem, 8vw, 5.5rem) 2rem;
+  text-align: center;
+  border-bottom: 1px solid var(--bordo);
+  background:
+    radial-gradient(ellipse at top, color-mix(in srgb, var(--accento) 7%, transparent), transparent 60%),
+    var(--carta);
+}
+
+.copertina__occhiello {
+  text-transform: uppercase;
+  letter-spacing: 0.24em;
+  font-size: 0.72rem;
+  color: var(--accento);
+  margin-bottom: 1rem;
+}
+
+.copertina p.sottotitolo {
+  max-width: 42ch;
+  margin: 0 auto;
+  color: var(--inchiostro-tenue);
+  font-size: 1.08rem;
+}
+
+.copertina__numeri {
+  display: flex;
+  gap: 2.5rem;
+  justify-content: center;
+  margin-top: 2.5rem;
+  flex-wrap: wrap;
+}
+
+.numero {
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+}
+
+.numero b {
+  font-family: var(--serif);
+  font-size: 2rem;
+  line-height: 1;
+}
+
+.numero span {
+  font-size: 0.72rem;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  color: var(--inchiostro-tenue);
+}
+
+/* ---------- Griglie ------------------------------------------------------ */
+
+.sezione-blocco {
+  padding-block: 3rem;
+}
+
+.titolo-blocco {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+  flex-wrap: wrap;
+}
+
+.titolo-blocco h2 {
+  margin: 0;
+}
+
+.griglia {
+  display: grid;
+  gap: 1.1rem;
+  grid-template-columns: repeat(auto-fill, minmax(min(100%, 16.5rem), 1fr));
+}
+
+.card-sezione {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+  padding: 1.35rem;
+  border: 1px solid var(--bordo);
+  border-radius: var(--raggio);
+  background: var(--carta-scheda);
+  text-decoration: none;
+  transition: transform 0.15s ease, box-shadow 0.15s ease, border-color 0.15s ease;
+}
+
+.card-sezione:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--ombra);
+  border-color: color-mix(in srgb, var(--accento) 40%, var(--bordo));
+}
+
+.card-sezione__emoji {
+  font-size: 1.6rem;
+  line-height: 1;
+}
+
+.card-sezione h3 {
+  margin: 0;
+  font-size: 1.2rem;
+}
+
+.card-sezione p {
+  margin: 0;
+  font-size: 0.88rem;
+  color: var(--inchiostro-tenue);
+}
+
+.card-sezione__conteggio {
+  margin-top: auto;
+  padding-top: 0.75rem;
+  font-size: 0.75rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--accento);
+}
+
+.card-ricetta {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+  padding: 1.25rem;
+  border: 1px solid var(--bordo);
+  border-radius: var(--raggio);
+  background: var(--carta-scheda);
+  text-decoration: none;
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+
+.card-ricetta:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--ombra);
+}
+
+.card-ricetta h3 {
+  margin: 0;
+  font-size: 1.3rem;
+}
+
+.card-ricetta__descrizione {
+  margin: 0;
+  font-size: 0.9rem;
+  color: var(--inchiostro-tenue);
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.card-ricetta__meta {
+  margin-top: auto;
+  padding-top: 0.8rem;
+  display: flex;
+  gap: 0.9rem;
+  flex-wrap: wrap;
+  font-size: 0.78rem;
+  color: var(--inchiostro-tenue);
+  font-variant-numeric: tabular-nums;
+}
+
+/* ---------- Etichette ---------------------------------------------------- */
+
+.etichetta {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  font-size: 0.72rem;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  padding: 0.15rem 0.6rem;
+  border-radius: 999px;
+  border: 1px solid var(--bordo);
+  color: var(--inchiostro-tenue);
+  background: var(--carta-alt);
+}
+
+.etichetta--esempio {
+  color: var(--accento);
+  background: var(--accento-tenue);
+  border-color: color-mix(in srgb, var(--accento) 35%, transparent);
+}
+
+.etichetta--facile {
+  color: var(--oliva);
+}
+
+/* ---------- Avviso ricette di prova -------------------------------------- */
+
+.avviso {
+  margin-top: 1.75rem;
+  padding: 0.9rem 1.15rem;
+  border: 1px dashed color-mix(in srgb, var(--accento) 45%, var(--bordo));
+  border-radius: var(--raggio);
+  background: var(--accento-tenue);
+  font-size: 0.88rem;
+  text-align: left;
+}
+
+.avviso code {
+  font-size: 0.85em;
+  background: color-mix(in srgb, var(--inchiostro) 8%, transparent);
+  padding: 0.1rem 0.35rem;
+  border-radius: 4px;
+}
+
+/* ---------- Scheda ricetta ----------------------------------------------- */
+
+.ricetta {
+  padding-block: 2.5rem;
+}
+
+.ricetta__briciole {
+  font-size: 0.82rem;
+  color: var(--inchiostro-tenue);
+  margin-bottom: 1.25rem;
+}
+
+.ricetta__testata {
+  border-bottom: 1px solid var(--bordo);
+  padding-bottom: 1.75rem;
+  margin-bottom: 2rem;
+}
+
+.ricetta__testata h1 {
+  margin-bottom: 0.35rem;
+}
+
+.ricetta__firma {
+  color: var(--inchiostro-tenue);
+  font-style: italic;
+  font-family: var(--serif);
+  font-size: 1.1rem;
+}
+
+.ricetta__descrizione {
+  max-width: 62ch;
+  color: var(--inchiostro-tenue);
+  font-size: 1.05rem;
+}
+
+.dati-rapidi {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(8.5rem, 1fr));
+  gap: 0.75rem;
+  margin-top: 1.5rem;
+  padding: 0;
+  list-style: none;
+}
+
+.dati-rapidi div {
+  border: 1px solid var(--bordo);
+  border-radius: var(--raggio);
+  padding: 0.7rem 0.85rem;
+  background: var(--carta-scheda);
+}
+
+.dati-rapidi dt {
+  font-size: 0.68rem;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  color: var(--inchiostro-tenue);
+  margin-bottom: 0.2rem;
+}
+
+.dati-rapidi dd {
+  margin: 0;
+  font-family: var(--serif);
+  font-size: 1.2rem;
+  font-variant-numeric: tabular-nums;
+}
+
+.ricetta__corpo {
+  display: grid;
+  grid-template-columns: minmax(0, 20rem) minmax(0, 1fr);
+  gap: 3rem;
+  align-items: start;
+}
+
+@media (max-width: 56rem) {
+  .ricetta__corpo {
+    grid-template-columns: 1fr;
+    gap: 2rem;
+  }
+}
+
+.colonna-laterale {
+  position: sticky;
+  top: 5.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+@media (max-width: 56rem) {
+  .colonna-laterale {
+    position: static;
+  }
+}
+
+.riquadro {
+  border: 1px solid var(--bordo);
+  border-radius: var(--raggio);
+  background: var(--carta-scheda);
+  padding: 1.25rem 1.4rem;
+}
+
+.riquadro > h2 {
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.14em;
+  font-family: var(--sans);
+  font-weight: 600;
+  color: var(--inchiostro-tenue);
+  margin-bottom: 0.9rem;
+}
+
+.ingredienti {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.ingredienti li {
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+  padding-block: 0.4rem;
+  border-bottom: 1px dotted var(--bordo);
+}
+
+.ingredienti li:last-child {
+  border-bottom: 0;
+}
+
+.ingredienti .dose {
+  font-variant-numeric: tabular-nums;
+  color: var(--inchiostro-tenue);
+  white-space: nowrap;
+}
+
+.ingredienti .nota-ingrediente {
+  display: block;
+  font-size: 0.8rem;
+  color: var(--inchiostro-tenue);
+  font-style: italic;
+}
+
+.gruppo-ingredienti + .gruppo-ingredienti {
+  margin-top: 1.2rem;
+}
+
+.gruppo-ingredienti h3 {
+  font-family: var(--sans);
+  font-size: 0.82rem;
+  font-weight: 600;
+  letter-spacing: 0.03em;
+  margin-bottom: 0.3rem;
+  color: var(--accento);
+}
+
+.accessori {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.45rem;
+  font-size: 0.92rem;
+}
+
+.accessori li::before {
+  content: '◦';
+  color: var(--accento);
+  margin-right: 0.5rem;
+}
+
+.passaggi {
+  list-style: none;
+  counter-reset: passaggio;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 1.6rem;
+}
+
+.passaggi li {
+  counter-increment: passaggio;
+  display: grid;
+  grid-template-columns: 2.4rem 1fr;
+  gap: 1rem;
+}
+
+.passaggi li::before {
+  content: counter(passaggio);
+  font-family: var(--serif);
+  font-size: 1.35rem;
+  line-height: 1;
+  color: var(--accento);
+  border: 1px solid color-mix(in srgb, var(--accento) 30%, transparent);
+  border-radius: 50%;
+  width: 2.4rem;
+  height: 2.4rem;
+  display: grid;
+  place-items: center;
+  background: var(--carta-scheda);
+}
+
+.passaggi h3 {
+  font-family: var(--sans);
+  font-size: 0.95rem;
+  margin-bottom: 0.2rem;
+}
+
+.passaggi p {
+  margin: 0;
+}
+
+.passaggi .durata {
+  display: inline-block;
+  margin-top: 0.35rem;
+  font-size: 0.76rem;
+  color: var(--inchiostro-tenue);
+  letter-spacing: 0.04em;
+}
+
+.blocco-note {
+  margin-top: 2.5rem;
+  border-left: 3px solid var(--accento);
+  padding: 0.2rem 0 0.2rem 1.2rem;
+  color: var(--inchiostro-tenue);
+  font-family: var(--serif);
+  font-size: 1.1rem;
+}
+
+.blocco-note h2 {
+  font-family: var(--sans);
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.14em;
+  color: var(--inchiostro);
+}
+
+.corpo-markdown {
+  margin-top: 2.5rem;
+  max-width: 68ch;
+}
+
+.corpo-markdown h2 {
+  font-size: 1.4rem;
+  margin-top: 2rem;
+}
+
+.corpo-markdown blockquote {
+  margin: 1.5rem 0;
+  padding-left: 1.2rem;
+  border-left: 3px solid var(--bordo);
+  font-family: var(--serif);
+  font-size: 1.15rem;
+  color: var(--inchiostro-tenue);
+}
+
+/* ---------- Autori ------------------------------------------------------- */
+
+.autore-scheda {
+  border: 1px solid var(--bordo);
+  border-radius: var(--raggio);
+  background: var(--carta-scheda);
+  padding: 1.5rem;
+}
+
+.autore-scheda h2 {
+  margin-bottom: 0.15rem;
+}
+
+.autore-scheda .relazione {
+  font-size: 0.72rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--accento);
+}
+
+.autore-scheda .nota {
+  color: var(--inchiostro-tenue);
+  font-family: var(--serif);
+  font-size: 1.05rem;
+  margin-block: 0.75rem;
+}
+
+.elenco-inline {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem 0.75rem;
+  font-size: 0.9rem;
+}
+
+/* ---------- Ricerca ------------------------------------------------------ */
+
+.campo-ricerca {
+  width: 100%;
+  font: inherit;
+  font-size: 1.1rem;
+  padding: 0.85rem 1.1rem;
+  border: 1px solid var(--bordo);
+  border-radius: var(--raggio);
+  background: var(--carta-scheda);
+  color: inherit;
+}
+
+.campo-ricerca:focus-visible {
+  outline: 2px solid var(--accento);
+  outline-offset: 2px;
+}
+
+.risultati {
+  list-style: none;
+  padding: 0;
+  margin: 1.5rem 0 0;
+  display: flex;
+  flex-direction: column;
+}
+
+.risultati li a {
+  display: block;
+  padding: 0.85rem 0.2rem;
+  border-bottom: 1px solid var(--bordo);
+  text-decoration: none;
+}
+
+.risultati li a:hover {
+  background: var(--carta-alt);
+}
+
+.risultati .contesto {
+  display: block;
+  font-size: 0.83rem;
+  color: var(--inchiostro-tenue);
+}
+
+/* ---------- Stampa dalla singola scheda ---------------------------------- */
+
+@media print {
+  .testata,
+  .fondo,
+  .ricetta__briciole,
+  .avviso {
+    display: none !important;
+  }
+
+  body {
+    background: #fff;
+    color: #000;
+    font-size: 11pt;
+  }
+
+  .ricetta__corpo {
+    grid-template-columns: 1fr;
+  }
+
+  .colonna-laterale {
+    position: static;
+  }
+
+  .riquadro {
+    break-inside: avoid;
+  }
+}

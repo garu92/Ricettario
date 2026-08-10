@@ -1,0 +1,35 @@
+---
+import { formattaDose } from '../lib/formato';
+import type { Ricetta } from '../lib/ricettario';
+
+interface Props {
+  ricetta: Ricetta;
+  /** Titolo del riquadro; nel libro lo si può togliere passando stringa vuota. */
+  titolo?: string;
+}
+
+const { ricetta, titolo = 'Ingredienti' } = Astro.props;
+const gruppi = ricetta.data.ingredienti;
+---
+
+<section class="riquadro riquadro--ingredienti">
+  {titolo && <h2>{titolo}</h2>}
+  {
+    gruppi.map((gruppo) => (
+      <div class="gruppo-ingredienti">
+        {gruppo.gruppo && <h3>{gruppo.gruppo}</h3>}
+        <ul class="ingredienti">
+          {gruppo.voci.map((voce) => (
+            <li>
+              <span class="nome">
+                {voce.nome}
+                {voce.note && <span class="nota-ingrediente">{voce.note}</span>}
+              </span>
+              <span class="dose">{formattaDose(voce.quantita, voce.unita)}</span>
+            </li>
+          ))}
+        </ul>
+      </div>
+    ))
+  }
+</section>

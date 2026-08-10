@@ -1,0 +1,120 @@
+name: Rilascio del ricettario
+
+# Ad ogni push su main: nuova versione, PDF rigenerato, release e sito aggiornato.
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+    inputs:
+      versione:
+        description: 'Versione da forzare (es. 2.0.0). Vuoto = calcolata dai commit.'
+        required: false
+        type: string
+
+permissions:
+  contents: write
+  pages: write
+  id-token: write
+
+# Un rilascio per volta: due push ravvicinati non devono generare due tag uguali.
+concurrency:
+  group: rilascio
+  cancel-in-progress: false
+
+jobs:
+  rilascio:
+    runs-on: ubuntu-latest
+    # Il commit di rilascio è fatto dalla CI stessa: senza questa guardia si rientrerebbe in loop.
+    if: "!startsWith(github.event.head_commit.message, 'chore(release):')"
+    outputs:
+      versione: ${{ steps.versione.outputs.versione }}
+      da_pubblicare: ${{ steps.versione.outputs.da_pubblicare }}
+    steps:
+      - name: Checkout con tutta la storia
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: Installa le dipendenze
+        run: npm ci
+
+      - name: Installa Chromium per la stampa
+        run: npx playwright install --with-deps chromium
+
+      - name: Determina gli indirizzi del sito
+        run: |
+          NOME_REPO="${GITHUB_REPOSITORY#*/}"
+          echo "SITO_BASE=/${NOME_REPO}/" >> "$GITHUB_ENV"
+          echo "SITO_URL=https://${GITHUB_REPOSITORY_OWNER}.github.io/${NOME_REPO}" >> "$GITHUB_ENV"
+          echo "NOME_REPO=${NOME_REPO}" >> "$GITHUB_ENV"
+
+      - name: Calcola la nuova versione
+        id: versione
+        run: |
+          if [ -n "${{ inputs.versione }}" ]; then
+            node scripts/calcola-versione.mjs --imposta "${{ inputs.versione }}" --applica
+          else
+            node scripts/calcola-versione.mjs --applica
+          fi
+
+      - name: Costruisci il sito
+        if: steps.versione.outputs.da_pubblicare == 'true'
+        run: npx astro build
+
+      - name: Genera il PDF del ricettario
+        if: steps.versione.outputs.da_pubblicare == 'true'
+        run: node scripts/genera-pdf.mjs
+
+      - name: Prepara la copia versionata del PDF
+        if: steps.versione.outputs.da_pubblicare == 'true'
+        run: |
+          cp public/pdf/ricettario-marano.pdf "ricettario-marano-v${{ steps.versione.outputs.versione }}.pdf"
+
+      - name: Committa versione, changelog e PDF
+        if: steps.versione.outputs.da_pubblicare == 'true'
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add package.json src/data/versione.json CHANGELOG.md public/pdf/ricettario-marano.pdf
+          git commit -m "chore(release): v${{ steps.versione.outputs.versione }} [skip ci]"
+          git tag -a "v${{ steps.versione.outputs.versione }}" -m "Ricettario v${{ steps.versione.outputs.versione }}"
+          git push origin HEAD:main --follow-tags
+
+      - name: Estrai le note di questa edizione
+        if: steps.versione.outputs.da_pubblicare == 'true'
+        run: |
+          # Dal titolo di questa versione fino al titolo della precedente.
+          awk '/^## v/{n++} n==1' CHANGELOG.md > note-edizione.md
+          cat note-edizione.md
+
+      - name: Pubblica la release con il PDF
+        if: steps.versione.outputs.da_pubblicare == 'true'
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: v${{ steps.versione.outputs.versione }}
+          name: Ricettario Marano v${{ steps.versione.outputs.versione }}
+          body_path: note-edizione.md
+          files: ricettario-marano-v${{ steps.versione.outputs.versione }}.pdf
+
+      - name: Carica il sito
+        if: steps.versione.outputs.da_pubblicare == 'true'
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: dist
+
+  pubblicazione:
+    needs: rilascio
+    if: needs.rilascio.outputs.da_pubblicare == 'true'
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deploy.outputs.page_url }}
+    steps:
+      - name: Pubblica su GitHub Pages
+        id: deploy
+        uses: actions/deploy-pages@v4

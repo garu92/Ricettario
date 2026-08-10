@@ -1,0 +1,31 @@
+---
+import { formattaDurata, formattaPorzioni, tempoTotale } from '../lib/formato';
+import type { Ricetta } from '../lib/ricettario';
+
+interface Props {
+  ricetta: Ricetta;
+}
+
+const d = Astro.props.ricetta.data;
+
+/** Riposo e cottura compaiono solo se la ricetta li prevede davvero. */
+const voci: Array<{ etichetta: string; valore: string }> = [
+  { etichetta: 'Porzioni', valore: formattaPorzioni(d.porzioni, d.unitaPorzioni) },
+  { etichetta: 'Preparazione', valore: formattaDurata(d.tempoPreparazione) },
+  ...(d.tempoCottura > 0 ? [{ etichetta: 'Cottura', valore: formattaDurata(d.tempoCottura) }] : []),
+  ...(d.tempoRiposo > 0 ? [{ etichetta: 'Riposo', valore: formattaDurata(d.tempoRiposo) }] : []),
+  { etichetta: 'Tempo totale', valore: formattaDurata(tempoTotale(d)) },
+  { etichetta: 'Difficoltà', valore: d.difficolta },
+];
+---
+
+<dl class="dati-rapidi">
+  {
+    voci.map((v) => (
+      <div>
+        <dt>{v.etichetta}</dt>
+        <dd>{v.valore}</dd>
+      </div>
+    ))
+  }
+</dl>

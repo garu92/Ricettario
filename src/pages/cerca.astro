@@ -1,0 +1,120 @@
+---
+import Base from '../layouts/Base.astro';
+import { nomeSezione } from '../data/sezioni';
+import { urlRicetta } from '../lib/percorsi';
+import { mappaAutori, tutteLeRicette } from '../lib/ricettario';
+
+const ricette = await tutteLeRicette();
+const autoriPerId = await mappaAutori();
+
+/**
+ * L'indice viene calcolato in fase di build e incorporato nella pagina: la ricerca
+ * funziona senza rete e senza dipendenze, il ricettario resta un sito statico.
+ */
+const indice = ricette.map((r) => ({
+  titolo: r.data.titolo,
+  url: urlRicetta(r.id),
+  sezione: nomeSezione(r.data.sezione),
+  autore: autoriPerId.get(r.data.autore.id)?.data.nome ?? r.data.autore.id,
+  descrizione: r.data.descrizione ?? '',
+  ingredienti: r.data.ingredienti.flatMap((g) => g.voci.map((v) => v.nome)),
+  tag: r.data.tag,
+}));
+---
+
+<Base titolo="Cerca" descrizione="Cerca una ricetta per nome, ingrediente, autore o sezione.">
+  <div class="contenitore">
+    <section class="sezione-blocco">
+      <h1>Cerca una ricetta</h1>
+      <p class="ricetta__descrizione">
+        Per titolo, ingrediente, autore o sezione. Prova con «forno», «limone», «nonna».
+      </p>
+
+      <label class="solo-lettori" for="campo">Termine di ricerca</label>
+      <input
+        id="campo"
+        class="campo-ricerca"
+        type="search"
+        placeholder="Cerca fra le ricette…"
+        autocomplete="off"
+        style="margin-top:1.5rem"
+      />
+
+      <p id="conteggio" style="margin-top:1rem;color:var(--inchiostro-tenue);font-size:.85rem"></p>
+      <ul class="risultati" id="risultati"></ul>
+    </section>
+  </div>
+
+  <script type="application/json" id="indice-ricette" set:html={JSON.stringify(indice)} is:inline
+  ></script>
+
+  <script>
+    interface VoceIndice {
+      titolo: string;
+      url: string;
+      sezione: string;
+      autore: string;
+      descrizione: string;
+      ingredienti: string[];
+      tag: string[];
+    }
+
+    const nodo = document.getElementById('indice-ricette');
+    const indice: VoceIndice[] = nodo ? JSON.parse(nodo.textContent ?? '[]') : [];
+    const campo = document.getElementById('campo') as HTMLInputElement | null;
+    const elencoRisultati = document.getElementById('risultati');
+    const conteggio = document.getElementById('conteggio');
+
+    /** Toglie accenti e maiuscole: «Ragù» e «ragu» devono trovarsi a vicenda. */
+    const normalizza = (t: string) =>
+      t
+        .toLowerCase()
+        .normalize('NFD')
+        .replace(/[\u0300-\u036f]/g, '');
+
+    const indiceNormalizzato = indice.map((v) => ({
+      voce: v,
+      testo: normalizza(
+        [v.titolo, v.sezione, v.autore, v.descrizione, ...v.ingredienti, ...v.tag].join(' '),
+      ),
+    }));
+
+    function mostra(termine: string) {
+      if (!elencoRisultati || !conteggio) return;
+
+      const parole = normalizza(termine).split(/\s+/).filter(Boolean);
+      const trovate =
+        parole.length === 0
+          ? indiceNormalizzato
+          : indiceNormalizzato.filter((v) => parole.every((p) => v.testo.includes(p)));
+
+      conteggio.textContent =
+        parole.length === 0
+          ? `${indice.length} ricette nel ricettario`
+          : trovate.length === 0
+            ? 'Nessuna ricetta trovata.'
+            : trovate.length === 1
+              ? '1 ricetta trovata'
+              : `${trovate.length} ricette trovate`;
+
+      elencoRisultati.replaceChildren(
+        ...trovate.map(({ voce }) => {
+          const li = document.createElement('li');
+          const a = document.createElement('a');
+          a.href = voce.url;
+          const titolo = document.createElement('strong');
+          titolo.textContent = voce.titolo;
+          const contesto = document.createElement('span');
+          contesto.className = 'contesto';
+          contesto.textContent = `${voce.sezione} · di ${voce.autore}`;
+          a.append(titolo, contesto);
+          li.append(a);
+          return li;
+        }),
+      );
+    }
+
+    campo?.addEventListener('input', () => mostra(campo.value));
+    mostra('');
+  </script>
+</Base>

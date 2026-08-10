@@ -1,0 +1,24 @@
+---
+import type { Ricetta } from '../lib/ricettario';
+
+interface Props {
+  ricetta: Ricetta;
+  titolo?: string;
+}
+
+const { ricetta, titolo = 'Occorrente' } = Astro.props;
+const accessori = ricetta.data.accessori;
+---
+
+{
+  accessori.length > 0 && (
+    <section class="riquadro riquadro--accessori">
+      {titolo && <h2>{titolo}</h2>}
+      <ul class="accessori">
+        {accessori.map((a) => (
+          <li>{a}</li>
+        ))}
+      </ul>
+    </section>
+  )
+}

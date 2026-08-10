@@ -1,0 +1,24 @@
+---
+import { formattaDurata, formattaPorzioni, tempoTotale } from '../lib/formato';
+import { urlRicetta } from '../lib/percorsi';
+import type { Ricetta } from '../lib/ricettario';
+
+interface Props {
+  ricetta: Ricetta;
+  autore?: string;
+}
+
+const { ricetta, autore } = Astro.props;
+const d = ricetta.data;
+---
+
+<a class="card-ricetta" href={urlRicetta(ricetta.id)}>
+  <h3>{d.titolo}</h3>
+  {autore && <span class="ricetta__firma" style="font-size:.9rem">di {autore}</span>}
+  {d.descrizione && <p class="card-ricetta__descrizione">{d.descrizione}</p>}
+  <div class="card-ricetta__meta">
+    <span>⏱ {formattaDurata(tempoTotale(d))}</span>
+    <span>🍽 {formattaPorzioni(d.porzioni, d.unitaPorzioni)}</span>
+    {d.esempio && <span class="etichetta etichetta--esempio">prova</span>}
+  </div>
+</a>

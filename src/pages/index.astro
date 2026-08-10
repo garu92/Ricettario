@@ -1,0 +1,98 @@
+---
+import Base from '../layouts/Base.astro';
+import CardRicetta from '../components/CardRicetta.astro';
+import versione from '../data/versione.json';
+import { urlPdf, urlSezione } from '../lib/percorsi';
+import {
+  ciSonoEsempi,
+  mappaAutori,
+  ricetteRecenti,
+  sezioniPopolate,
+  tutteLeRicette,
+  tuttiGliAutori,
+} from '../lib/ricettario';
+
+const sezioni = await sezioniPopolate(true);
+const ricette = await tutteLeRicette();
+const autori = await tuttiGliAutori();
+const recenti = await ricetteRecenti(6);
+const autoriPerId = await mappaAutori();
+const conEsempi = await ciSonoEsempi();
+---
+
+<Base
+  titolo="Ricettario Marano"
+  descrizione="Il ricettario della famiglia Marano: ricette di casa, con dosi, tempi e passaggi, pronte anche per la stampa."
+>
+  <section class="copertina">
+    <div class="contenitore">
+      <p class="copertina__occhiello">Edizione v{versione.versione}</p>
+      <h1>Il ricettario<br />della famiglia Marano</h1>
+      <p class="sottotitolo">
+        Le ricette di casa messe per iscritto una volta per tutte: dosi, tempi, attrezzi e
+        passaggi. Da leggere qui o da stampare e tenere in cucina.
+      </p>
+
+      <div class="copertina__numeri">
+        <div class="numero"><b>{ricette.length}</b><span>Ricette</span></div>
+        <div class="numero"><b>{sezioni.filter((s) => s.ricette.length > 0).length}</b><span>Sezioni</span></div>
+        <div class="numero"><b>{autori.length}</b><span>Autori</span></div>
+      </div>
+
+      <p style="margin-top:2rem">
+        <a class="etichetta" href={urlPdf()} download style="font-size:.8rem;padding:.5rem 1.1rem">
+          📕 Scarica il libro completo in PDF
+        </a>
+      </p>
+
+      {
+        conEsempi && (
+          <div class="avviso contenitore" style="max-width:44rem">
+            <strong>Le ricette che vedi sono di prova.</strong> Servono a far vedere come si
+            comporta il ricettario con contenuti veri. Quando vuoi fare piazza pulita:{' '}
+            <code>npm run rimuovi-esempi</code>.
+          </div>
+        )
+      }
+    </div>
+  </section>
+
+  <div class="contenitore">
+    <section class="sezione-blocco">
+      <div class="titolo-blocco">
+        <h2>Le sezioni</h2>
+      </div>
+      <div class="griglia">
+        {
+          sezioni.map(({ sezione, ricette: r }) => (
+            <a class="card-sezione" href={urlSezione(sezione.id)}>
+              <span class="card-sezione__emoji" aria-hidden="true">
+                {sezione.emoji}
+              </span>
+              <h3>{sezione.nome}</h3>
+              <p>{sezione.descrizione}</p>
+              <span class="card-sezione__conteggio">
+                {r.length === 0 ? 'ancora vuota' : r.length === 1 ? '1 ricetta' : `${r.length} ricette`}
+              </span>
+            </a>
+          ))
+        }
+      </div>
+    </section>
+
+    {
+      recenti.length > 0 && (
+        <section class="sezione-blocco">
+          <div class="titolo-blocco">
+            <h2>Ultime arrivate</h2>
+          </div>
+          <div class="griglia">
+            {recenti.map((r) => (
+              <CardRicetta ricetta={r} autore={autoriPerId.get(r.data.autore.id)?.data.nome} />
+            ))}
+          </div>
+        </section>
+      )
+    }
+  </div>
+</Base>

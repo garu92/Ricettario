@@ -1,0 +1,31 @@
+---
+import { formattaDurata } from '../lib/formato';
+import type { Ricetta } from '../lib/ricettario';
+
+interface Props {
+  ricetta: Ricetta;
+  titolo?: string;
+}
+
+const { ricetta, titolo = 'Preparazione' } = Astro.props;
+const passaggi = ricetta.data.passaggi;
+---
+
+<section class="blocco-passaggi">
+  {titolo && <h2>{titolo}</h2>}
+  <ol class="passaggi">
+    {
+      passaggi.map((p) => (
+        <li>
+          <div>
+            {p.titolo && <h3>{p.titolo}</h3>}
+            <p>{p.testo}</p>
+            {p.durata !== undefined && p.durata > 0 && (
+              <span class="durata">⏱ {formattaDurata(p.durata)}</span>
+            )}
+          </div>
+        </li>
+      ))
+    }
+  </ol>
+</section>
