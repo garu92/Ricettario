@@ -1,0 +1,32 @@
+---
+import { esisteFoto } from '../lib/foto';
+import { percorso } from '../lib/percorsi';
+
+interface Props {
+  /** Percorso pubblico della foto, es. `/foto/carbonara/passo-1.jpg`. */
+  foto: string;
+  didascalia?: string;
+  /** Numero del passaggio, usato nel testo alternativo e nel riquadro vuoto. */
+  numero: number;
+  titoloRicetta: string;
+}
+
+const { foto, didascalia, numero, titoloRicetta } = Astro.props;
+const presente = esisteFoto(foto);
+const alt = didascalia ?? `${titoloRicetta}, passaggio ${numero}`;
+---
+
+<figure class="foto-passaggio">
+  {
+    presente ? (
+      <img src={percorso(foto).replace(/\/$/, '')} alt={alt} loading="lazy" />
+    ) : (
+      <div class="foto-mancante">
+        <span class="foto-mancante__icona" aria-hidden="true">📷</span>
+        <span class="foto-mancante__titolo">Foto del passaggio {numero}</span>
+        <code>{foto}</code>
+      </div>
+    )
+  }
+  {didascalia && <figcaption>{didascalia}</figcaption>}
+</figure>

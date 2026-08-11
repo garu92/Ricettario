@@ -574,6 +574,50 @@ a {
   text-align: left;
 }
 
+/* ---------- Foto dei passaggi -------------------------------------------- */
+
+.foto-passaggio {
+  margin: 2mm 0 0;
+  break-inside: avoid;
+}
+
+.foto-passaggio img {
+  display: block;
+  width: 100%;
+  /* In A5 una foto più alta di così spinge il passaggio sulla pagina dopo. */
+  max-height: 55mm;
+  object-fit: cover;
+  border: 0.5pt solid var(--filo);
+}
+
+.foto-passaggio figcaption {
+  margin-top: 1mm;
+  font-family: var(--sans);
+  font-size: 7pt;
+  color: var(--grigio);
+  text-align: left;
+}
+
+/*
+ * Nel libro il riquadro vuoto resta, ma discreto: una cornice tratteggiata che ricorda
+ * che lì manca una foto, senza il percorso del file che su carta non servirebbe a niente.
+ */
+.foto-mancante {
+  height: 30mm;
+  border: 0.5pt dashed var(--filo);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #b3a894;
+  font-size: 8pt;
+  break-inside: avoid;
+}
+
+.foto-mancante code,
+.foto-mancante .foto-mancante__titolo {
+  display: none;
+}
+
 .note-libro {
   margin-top: 4mm;
   padding-left: 3mm;

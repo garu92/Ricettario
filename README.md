@@ -65,6 +65,23 @@ Due dettagli che fanno risparmiare tempo:
 
 Gli autori stanno in `src/content/autori/<id>.md` e le sezioni in `src/data/sezioni.ts`.
 
+## Le foto dei passaggi
+
+Ogni passaggio può avere la sua foto. I file vanno in `public/foto/<slug-della-ricetta>/` e nel
+frontmatter si scrive il percorso pubblico:
+
+```yaml
+passaggi:
+  - titolo: Il guanciale
+    testo: Rosolalo finché prende il color rame.
+    foto: /foto/pasta-alla-carbonara/passo-3.jpg
+    didascalia: Il colore da raggiungere, rame e non più scuro.
+```
+
+Il campo si scrive anche prima di avere la foto: finché il file non c'è, sul sito e nel libro
+compare un riquadro tratteggiato con il percorso da riempire. Quando metti il file nella
+cartella con quel nome, la foto appare da sola al build successivo — la ricetta non va toccata.
+
 ## Comandi
 
 | Comando | Cosa fa |

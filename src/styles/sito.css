@@ -625,6 +625,60 @@ img {
   letter-spacing: 0.04em;
 }
 
+/* ---------- Foto dei passaggi -------------------------------------------- */
+
+.foto-passaggio {
+  margin: 0.9rem 0 0;
+}
+
+.foto-passaggio img {
+  display: block;
+  width: 100%;
+  border-radius: var(--raggio);
+  border: 1px solid var(--bordo);
+}
+
+.foto-passaggio figcaption {
+  margin-top: 0.4rem;
+  font-size: 0.82rem;
+  color: var(--inchiostro-tenue);
+  font-style: italic;
+}
+
+/* Riquadro mostrato finché la foto non è stata scattata. */
+.foto-mancante {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.35rem;
+  /* Contenuto, non decorazione: finché la foto manca il riquadro resta piccolo. */
+  height: 9rem;
+  border: 1px dashed var(--bordo);
+  border-radius: var(--raggio);
+  background: var(--carta-alt);
+  color: var(--inchiostro-tenue);
+  text-align: center;
+  padding: 1rem;
+}
+
+.foto-mancante__icona {
+  font-size: 1.5rem;
+  opacity: 0.7;
+}
+
+.foto-mancante__titolo {
+  font-size: 0.88rem;
+  font-weight: 500;
+}
+
+.foto-mancante code {
+  font-size: 0.75rem;
+  background: color-mix(in srgb, var(--inchiostro) 7%, transparent);
+  padding: 0.15rem 0.45rem;
+  border-radius: 4px;
+}
+
 .blocco-note {
   margin-top: 2.5rem;
   border-left: 3px solid var(--accento);

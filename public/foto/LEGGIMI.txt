@@ -1,0 +1,7 @@
+Le foto delle ricette vanno qui, una cartella per ricetta.
+
+Convenzione: public/foto/<slug-della-ricetta>/passo-1.jpg, passo-2.jpg, ...
+Il percorso va scritto nel frontmatter del passaggio, nel campo foto:
+  foto: /foto/pasta-alla-carbonara/passo-1.jpg
+
+Finche' il file non c'e', al suo posto compare un riquadro tratteggiato.

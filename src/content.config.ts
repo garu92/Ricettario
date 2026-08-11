@@ -45,6 +45,16 @@ const passaggio = z.object({
   testo: z.string().min(1),
   /** Minuti, se il passaggio ha una durata propria da tenere d'occhio. */
   durata: z.number().nonnegative().optional(),
+  /**
+   * Foto del passaggio, come percorso dentro `public/`:
+   * `/foto/<slug-ricetta>/passo-1.jpg`.
+   *
+   * Il file può non esserci ancora: al suo posto compare un riquadro tratteggiato con
+   * il percorso da riempire, così la ricetta si scrive prima e si fotografa dopo.
+   */
+  foto: z.string().optional(),
+  /** Didascalia della foto: cosa si deve guardare. */
+  didascalia: z.string().optional(),
 });
 
 /** Un passaggio può essere scritto come semplice stringa: viene normalizzato a oggetto. */

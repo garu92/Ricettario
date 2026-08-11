@@ -16,6 +16,10 @@ italiano: nomi di file, variabili, commenti e testi dell'interfaccia.
   sotto `/Ricettario/` su GitHub Pages: un link scritto a mano funziona solo in uno dei due casi.
 - **Non toccare a mano `src/data/versione.json` né i tag `v*`:** li scrive
   `scripts/calcola-versione.mjs` dalla CI.
+- **Le foto stanno in `public/foto/<slug>/`** e si citano nel frontmatter del passaggio
+  (`foto: /foto/<slug>/passo-1.jpg`). `src/lib/foto.ts` controlla a build time se il file
+  esiste: se manca, si mostra un riquadro tratteggiato invece di un'immagine rotta, così una
+  ricetta si può scrivere prima e fotografare dopo.
 
 ## Il PDF
 

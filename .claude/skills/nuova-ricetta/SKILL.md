@@ -44,6 +44,8 @@ passaggi:
   - titolo: Impasto           # opzionale
     testo: Cosa fare, all'imperativo, con il perché quando serve.
     durata: 15                # opzionale, minuti
+    foto: /foto/<slug>/passo-1.jpg   # opzionale
+    didascalia: Cosa si deve guardare nella foto.  # opzionale
 conservazione: In frigo 3 giorni.     # opzionale
 note: Varianti e ricordi di famiglia. # opzionale
 fonte: Da dove arriva, se non è di casa.  # opzionale
@@ -69,6 +71,16 @@ ingredienti:
     voci:
       - { nome: Ricotta, quantita: 700, unita: g, note: scolata una notte }
 ```
+
+## Le foto dei passaggi
+
+I file stanno in `public/foto/<slug-della-ricetta>/`, e nel frontmatter si scrive il percorso
+pubblico: `foto: /foto/pasta-alla-carbonara/passo-1.jpg`.
+
+Il campo si può scrivere **prima** di avere la foto: finché il file non esiste, al suo posto
+compare un riquadro tratteggiato con il percorso da riempire — sul sito e anche nel libro. Non
+serve quindi tornare a modificare la ricetta quando si scattano le foto: basta mettere i file
+nella cartella con i nomi giusti.
 
 ## Regole che evitano errori
 

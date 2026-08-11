@@ -1,4 +1,5 @@
 ---
+import FotoPassaggio from './FotoPassaggio.astro';
 import { formattaDurata } from '../lib/formato';
 import type { Ricetta } from '../lib/ricettario';
 
@@ -15,13 +16,21 @@ const passaggi = ricetta.data.passaggi;
   {titolo && <h2>{titolo}</h2>}
   <ol class="passaggi">
     {
-      passaggi.map((p) => (
+      passaggi.map((p, i) => (
         <li>
           <div>
             {p.titolo && <h3>{p.titolo}</h3>}
             <p>{p.testo}</p>
             {p.durata !== undefined && p.durata > 0 && (
               <span class="durata">⏱ {formattaDurata(p.durata)}</span>
+            )}
+            {p.foto && (
+              <FotoPassaggio
+                foto={p.foto}
+                didascalia={p.didascalia}
+                numero={i + 1}
+                titoloRicetta={ricetta.data.titolo}
+              />
             )}
           </div>
         </li>
