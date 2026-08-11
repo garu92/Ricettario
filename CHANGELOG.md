@@ -2,6 +2,28 @@
 
 Ogni push su `main` produce una nuova edizione del ricettario, con il PDF rigenerato.
 
+## v0.3.0 — 2026-08-11
+
+### Ricette aggiunte
+
+- Pasta alla carbonara
+
+### Ricette rimosse
+
+- bruschette-al-pomodoro
+- friarielli-ripassati
+- limoncello
+- pasta-e-patate-con-la-provola
+- pastiera-napoletana
+- pesto-alla-genovese
+- pizza-in-teglia
+- polpette-al-sugo
+- ragu-della-domenica
+
+### Modifiche al ricettario
+
+- feat: prime ricette vere e foto per ogni passaggio
+
 ## v0.2.0 — 2026-08-11
 
 ### Ricette aggiunte
