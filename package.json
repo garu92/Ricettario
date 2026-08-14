@@ -13,6 +13,7 @@
     "pdf:solo": "node scripts/genera-pdf.mjs",
     "versione": "node scripts/calcola-versione.mjs",
     "versione:applica": "node scripts/calcola-versione.mjs --applica",
+    "segnaposto": "node scripts/genera-segnaposto.mjs",
     "rimuovi-esempi": "node scripts/rimuovi-esempi.mjs",
     "rimuovi-esempi:conferma": "node scripts/rimuovi-esempi.mjs --conferma",
     "rilascio": "node scripts/calcola-versione.mjs --applica && npm run pdf"
@@ -26,6 +27,7 @@
   "devDependencies": {
     "@astrojs/check": "^0.9.10",
     "@types/node": "^26.2.0",
+    "js-yaml": "^5.3.0",
     "playwright": "^1.55.0",
     "typescript": "^5.9.2"
   },

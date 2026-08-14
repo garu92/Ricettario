@@ -581,13 +581,19 @@ a {
   break-inside: avoid;
 }
 
-.foto-passaggio img {
-  display: block;
+/*
+ * Riquadro di altezza fissa con la foto come sfondo: a Paged.js serve una dimensione
+ * certa fin dal primo calcolo per decidere in quale pagina sta un passaggio.
+ *
+ * `contain` invece di `cover` perché in una ricetta il dettaglio che conta può trovarsi in
+ * qualsiasi angolo della foto: meglio rimpicciolire che tagliare.
+ */
+.foto-libro {
   width: 100%;
-  /* In A5 una foto più alta di così spinge il passaggio sulla pagina dopo. */
-  max-height: 55mm;
-  object-fit: cover;
-  border: 0.5pt solid var(--filo);
+  height: 50mm;
+  background-size: contain;
+  background-position: center;
+  background-repeat: no-repeat;
 }
 
 .foto-passaggio figcaption {

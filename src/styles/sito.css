@@ -631,9 +631,13 @@ img {
   margin: 0.9rem 0 0;
 }
 
+/* La foto si adatta al riquadro senza essere ritagliata. */
 .foto-passaggio img {
   display: block;
-  width: 100%;
+  max-width: 100%;
+  max-height: 26rem;
+  width: auto;
+  margin-inline: auto;
   border-radius: var(--raggio);
   border: 1px solid var(--bordo);
 }

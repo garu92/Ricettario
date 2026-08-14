@@ -13,7 +13,7 @@
 import { copyFileSync, createReadStream, existsSync, mkdirSync, statSync } from 'node:fs';
 import { createServer } from 'node:http';
 import { extname, join, normalize, resolve } from 'node:path';
-import { chromium } from 'playwright';
+import { avviaBrowser } from './lib/browser.mjs';
 
 const argomenti = process.argv.slice(2);
 const indiceUscita = argomenti.indexOf('--uscita');
@@ -80,33 +80,6 @@ function avviaServer() {
   return new Promise((ok) => server.listen(0, '127.0.0.1', () => ok(server)));
 }
 
-/**
- * Chromium scaricato da Playwright è la scelta giusta (è quello che gira in CI), ma su una
- * macchina dove non è stato scaricato si ripiega su Edge o Chrome di sistema: entrambi
- * stampano allo stesso modo, e così `npm run pdf` funziona anche senza `playwright install`.
- */
-async function avviaBrowser() {
-  const tentativi = [
-    { nome: 'Chromium di Playwright', opzioni: {} },
-    { nome: 'Microsoft Edge di sistema', opzioni: { channel: 'msedge' } },
-    { nome: 'Google Chrome di sistema', opzioni: { channel: 'chrome' } },
-  ];
-
-  for (const tentativo of tentativi) {
-    try {
-      const browser = await chromium.launch(tentativo.opzioni);
-      log(`browser: ${tentativo.nome}`);
-      return browser;
-    } catch {
-      // si prova il successivo
-    }
-  }
-
-  throw new Error(
-    'nessun browser disponibile: esegui `npx playwright install chromium`, oppure installa Edge o Chrome.',
-  );
-}
-
 async function main() {
   if (!existsSync(join(DIST, 'stampa', 'index.html'))) {
     console.error('[pdf] manca dist/stampa/index.html — esegui prima `npm run build`.');
@@ -118,7 +91,7 @@ async function main() {
   const indirizzo = `http://127.0.0.1:${porta}${BASE}stampa/`;
   log(`servo il sito su ${indirizzo}`);
 
-  const browser = await avviaBrowser();
+  const browser = await avviaBrowser(log);
   let uscita = 0;
 
   try {

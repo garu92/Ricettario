@@ -60,17 +60,28 @@ const dataStampa = formattaData(new Date(versione.data));
     <script>
       import { Previewer } from 'pagedjs';
 
-      const anteprima = new Previewer();
-      anteprima
-        .preview()
-        .then((flusso) => {
+      /*
+       * L'impaginazione parte solo a caricamento completo. Se Paged.js misura una foto
+       * non ancora scaricata la considera alta zero, poi l'immagine arriva, il calcolo
+       * salta e l'impaginazione non termina più: il PDF resta in attesa all'infinito.
+       */
+      async function impagina() {
+        try {
+          await document.fonts.ready;
+          const flusso = await new Previewer().preview();
           document.documentElement.dataset.pagine = String(flusso.total);
           document.documentElement.dataset.paginato = 'ok';
-        })
-        .catch((errore) => {
+        } catch (errore) {
           document.documentElement.dataset.paginato = 'errore';
           console.error('Paged.js:', errore);
-        });
+        }
+      }
+
+      if (document.readyState === 'complete') {
+        impagina();
+      } else {
+        window.addEventListener('load', impagina, { once: true });
+      }
     </script>
   </head>
 

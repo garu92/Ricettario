@@ -1,6 +1,6 @@
 ---
 import { render } from 'astro:content';
-import FotoPassaggio from './FotoPassaggio.astro';
+import FotoPassaggioLibro from './FotoPassaggioLibro.astro';
 import { formattaDose, formattaDurata, formattaPorzioni, tempoTotale } from '../lib/formato';
 import type { Ricetta } from '../lib/ricettario';
 
@@ -85,7 +85,7 @@ const dati = [
               <span class="durata-passo">{formattaDurata(p.durata)}</span>
             )}
             {p.foto && (
-              <FotoPassaggio
+              <FotoPassaggioLibro
                 foto={p.foto}
                 didascalia={p.didascalia}
                 numero={i + 1}

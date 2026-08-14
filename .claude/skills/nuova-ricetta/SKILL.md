@@ -82,6 +82,10 @@ compare un riquadro tratteggiato con il percorso da riempire — sul sito e anch
 serve quindi tornare a modificare la ricetta quando si scattano le foto: basta mettere i file
 nella cartella con i nomi giusti.
 
+Per riempire i buchi nel frattempo, `npm run segnaposto` genera un'immagine per ogni foto
+dichiarata e non ancora presente, con impressa la scritta «Foto non ufficiale». Non tocca mai
+le foto vere già in cartella.
+
 ## Regole che evitano errori
 
 - **YAML e due punti**: se un valore contiene `: ` (due punti + spazio), usa il block scalar,

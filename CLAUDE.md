@@ -31,6 +31,10 @@ pagina dell'indice. Due trappole già incontrate:
   (copertina, occhielli, colophon) hanno bisogno di `text-align-last: center` esplicito.
 - il numero di pagina nell'indice nasce da `attr(href)`, quindi la regola CSS deve applicarsi
   **all'elemento che ha l'href** (`a.riga-indice::after`), non a uno span figlio.
+- **le foto nel libro sono `background-image`, non `<img>`** (`FotoPassaggioLibro.astro`):
+  Paged.js impagina clonando i nodi e misura un `<img>` clonato prima che si scarichi, con
+  un'altezza che cambia sotto i piedi e un'impaginazione che non termina mai. Per lo stesso
+  motivo `impagina()` in `stampa.astro` parte solo dopo l'evento `load`.
 
 Per controllare il risultato: `npm run pdf`, poi apri `public/pdf/ricettario-marano.pdf`.
 La stessa impaginazione si vede nel browser su `/stampa/`, pagina per pagina.

@@ -1,0 +1,36 @@
+---
+import { esisteFoto } from '../lib/foto';
+import { percorso } from '../lib/percorsi';
+
+/**
+ * La stessa foto del sito, ma per la pagina stampata.
+ *
+ * Qui l'immagine è un `background-image` e non un `<img>`: Paged.js impagina clonando i
+ * nodi, e un `<img>` appena clonato viene misurato prima di essere scaricato — con
+ * un'altezza che cambia sotto i piedi l'impaginazione non termina mai. Uno sfondo occupa
+ * un riquadro di dimensioni certe fin da subito.
+ */
+
+interface Props {
+  foto: string;
+  didascalia?: string;
+  numero: number;
+  titoloRicetta: string;
+}
+
+const { foto, didascalia, numero, titoloRicetta } = Astro.props;
+const presente = esisteFoto(foto);
+const alt = didascalia ?? `${titoloRicetta}, passaggio ${numero}`;
+const src = percorso(foto).replace(/\/$/, '');
+---
+
+<figure class="foto-passaggio">
+  {
+    presente ? (
+      <div class="foto-libro" style={`background-image: url('${src}')`} role="img" aria-label={alt} />
+    ) : (
+      <div class="foto-mancante">Foto del passaggio {numero} da inserire</div>
+    )
+  }
+  {didascalia && <figcaption>{didascalia}</figcaption>}
+</figure>

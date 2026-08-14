@@ -82,6 +82,18 @@ Il campo si scrive anche prima di avere la foto: finché il file non c'è, sul s
 compare un riquadro tratteggiato con il percorso da riempire. Quando metti il file nella
 cartella con quel nome, la foto appare da sola al build successivo — la ricetta non va toccata.
 
+Per non lasciare buchi nel libro nel frattempo:
+
+```bash
+npm run segnaposto                        # genera le immagini mancanti di tutte le ricette
+npm run segnaposto -- pasta-alla-carbonara  # solo una ricetta
+```
+
+Le immagini generate portano impressa la scritta **Foto non ufficiale**, così nessuno le
+scambia per foto vere né sullo schermo né sulla pagina stampata. Sostituendo il file con la
+foto vera, la scritta sparisce: è dentro il segnaposto, non è un livello aggiunto dal sito.
+Lo script non tocca mai le foto già presenti (`--tutte` per rigenerarle comunque).
+
 ## Comandi
 
 | Comando | Cosa fa |
@@ -92,6 +104,7 @@ cartella con quel nome, la foto appare da sola al build successivo — la ricett
 | `npm run pdf:solo` | solo PDF, dal `dist/` già costruito |
 | `npm run versione` | mostra la prossima versione e l'anteprima del changelog |
 | `npm run rilascio` | edizione completa in locale: versione, build, PDF, changelog |
+| `npm run segnaposto` | genera le immagini segnaposto per le foto mancanti |
 | `npm run rimuovi-esempi` | elenca le ricette di prova (`--conferma` per cancellarle) |
 
 Per il PDF serve un browser Chromium: `npx playwright install chromium`, oppure basta
