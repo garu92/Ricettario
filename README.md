@@ -65,6 +65,42 @@ Due dettagli che fanno risparmiare tempo:
 
 Gli autori stanno in `src/content/autori/<id>.md` e le sezioni in `src/data/sezioni.ts`.
 
+## Contributi e versione di ogni ricetta
+
+Una ricetta di famiglia non nasce finita: si aggiusta ogni volta che qualcuno la rifà. Il
+ricettario tiene traccia della cosa in due modi diversi, che non vanno confusi.
+
+**I contributi** sono le note firmate che si aggiungono alla ricetta nel tempo. Si scrivono nel
+frontmatter e compaiono sia sul sito sia nel libro stampato, perché sono contenuto:
+
+```yaml
+contributi:
+  - autore: gianna-protti          # un file in src/content/autori/
+    data: 2026-09-03
+    testo: >-
+      Con la pasta di Gragnano la crema regge meglio. Il pepe macinato al momento cambia tutto.
+  - autore: sofia-battista
+    data: 2026-10-11
+    testo: Con 2 tuorli e 2 uova intere viene più leggera, per chi la vuole meno ricca.
+```
+
+**La versione** invece non si scrive: viene letta da git. Ogni ricetta è un file versionato,
+quindi «revisione 3, aggiornata il 12 ottobre, ci hanno messo mano Giulio e Gianna» è già
+scritto nella storia del repository. Sulla pagina della ricetta trovi l'etichetta `rev. 3`
+accanto alla firma e, in fondo, la sezione **Storia della ricetta** con l'elenco completo delle
+modifiche, ciascuna con il suo hash di commit. Nel libro stampato la stessa informazione sta in
+una riga sotto la ricetta.
+
+Perché i nomi dei commit diventino nomi di famiglia, aggiungi gli alias git alla scheda autore:
+
+```yaml
+nome: Giulio Marano
+alias: [Giulio, giulio.marano@gmail.com]
+```
+
+Chi non deve comparire fra i contributori (bot, automatismi) si elenca in
+`src/data/contributori.ts`.
+
 ## Le foto dei passaggi
 
 Ogni passaggio può avere la sua foto. I file vanno in `public/foto/<slug-della-ricetta>/` e nel

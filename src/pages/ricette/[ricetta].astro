@@ -3,9 +3,12 @@ import type { GetStaticPaths } from 'astro';
 import { render } from 'astro:content';
 import Base from '../../layouts/Base.astro';
 import BloccoAccessori from '../../components/BloccoAccessori.astro';
+import BloccoContributi from '../../components/BloccoContributi.astro';
 import BloccoIngredienti from '../../components/BloccoIngredienti.astro';
 import BloccoPassaggi from '../../components/BloccoPassaggi.astro';
 import DatiRapidi from '../../components/DatiRapidi.astro';
+import StoriaRicetta from '../../components/StoriaRicetta.astro';
+import { storiaRicetta } from '../../lib/storia';
 import { nomeSezione } from '../../data/sezioni';
 import { formattaData } from '../../lib/formato';
 import { urlHome, urlSezione } from '../../lib/percorsi';
@@ -20,6 +23,7 @@ const { ricetta } = Astro.props;
 const d = ricetta.data;
 const autore = (await mappaAutori()).get(d.autore.id);
 const { Content } = await render(ricetta);
+const storia = storiaRicetta(ricetta.id);
 ---
 
 <Base titolo={d.titolo} descrizione={d.descrizione} sezioneAttiva={d.sezione}>
@@ -31,7 +35,14 @@ const { Content } = await render(ricetta);
     <header class="ricetta__testata">
       {d.esempio && <span class="etichetta etichetta--esempio">ricetta di prova</span>}
       <h1>{d.titolo}</h1>
-      <p class="ricetta__firma">di {autore?.data.nome ?? d.autore.id}</p>
+      <p class="ricetta__firma">
+        di {autore?.data.nome ?? d.autore.id}
+        {storia.revisione > 0 && (
+          <a class="etichetta etichetta--revisione" href="#storia" title="Storia della ricetta">
+            rev. {storia.revisione}
+          </a>
+        )}
+      </p>
       {d.descrizione && <p class="ricetta__descrizione">{d.descrizione}</p>}
       <DatiRapidi ricetta={ricetta} />
     </header>
@@ -62,8 +73,14 @@ const { Content } = await render(ricetta);
           )
         }
 
+        <BloccoContributi ricetta={ricetta} />
+
         <div class="corpo-markdown">
           <Content />
+        </div>
+
+        <div id="storia">
+          <StoriaRicetta ricetta={ricetta} />
         </div>
 
         <p style="margin-top:3rem;font-size:.82rem;color:var(--inchiostro-tenue)">

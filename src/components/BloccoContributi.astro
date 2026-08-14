@@ -1,0 +1,40 @@
+---
+import { formattaData } from '../lib/formato';
+import { mappaAutori, type Ricetta } from '../lib/ricettario';
+
+/**
+ * I contributi aggiunti alla ricetta nel tempo: migliorie, varianti provate, correzioni
+ * di dose. Sono contenuto a tutti gli effetti, quindi finiscono anche nel libro stampato.
+ */
+
+interface Props {
+  ricetta: Ricetta;
+  titolo?: string;
+}
+
+const { ricetta, titolo = 'Contributi' } = Astro.props;
+const autori = await mappaAutori();
+
+// Dal più recente: l'ultima parola su una ricetta è quella che interessa per prima.
+const contributi = [...ricetta.data.contributi].sort(
+  (a, b) => b.data.getTime() - a.data.getTime(),
+);
+---
+
+{
+  contributi.length > 0 && (
+    <section class="contributi">
+      <h2>{titolo}</h2>
+      <ol>
+        {contributi.map((c) => (
+          <li>
+            <p class="contributo__testo">{c.testo}</p>
+            <p class="contributo__firma">
+              {autori.get(c.autore.id)?.data.nome ?? c.autore.id} · {formattaData(c.data)}
+            </p>
+          </li>
+        ))}
+      </ol>
+    </section>
+  )
+}

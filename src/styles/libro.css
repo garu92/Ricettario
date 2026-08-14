@@ -645,6 +645,53 @@ a {
   margin-bottom: 1mm;
 }
 
+/* ---------- Contributi --------------------------------------------------- */
+
+.contributi-libro {
+  margin-top: 4mm;
+  padding: 3mm 4mm;
+  background: #f7f3ea;
+  border-left: 1.5pt solid var(--rosso);
+  break-inside: avoid;
+}
+
+.contributi-libro h4 {
+  font-family: var(--sans);
+  font-size: 7pt;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--rosso);
+  margin: 0 0 2mm;
+}
+
+.contributi-libro ol {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.contributi-libro li {
+  break-inside: avoid;
+  font-size: 9.5pt;
+}
+
+.contributi-libro li + li {
+  margin-top: 2.5mm;
+}
+
+.contributo-testo {
+  display: block;
+}
+
+.contributo-firma {
+  display: block;
+  margin-top: 0.6mm;
+  font-family: var(--sans);
+  font-size: 7pt;
+  color: var(--grigio);
+  text-align: left;
+}
+
 .corpo-libero {
   margin-top: 4mm;
   font-size: 9.5pt;

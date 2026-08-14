@@ -385,6 +385,121 @@ img {
   color: var(--oliva);
 }
 
+.etichetta--revisione {
+  margin-left: 0.6rem;
+  font-family: var(--sans);
+  font-variant-numeric: tabular-nums;
+  text-decoration: none;
+  vertical-align: 0.15em;
+}
+
+.etichetta--revisione:hover {
+  border-color: var(--accento);
+  color: var(--accento);
+}
+
+/* ---------- Contributi e storia ------------------------------------------ */
+
+.contributi {
+  margin-top: 2.5rem;
+  padding: 1.4rem 1.5rem;
+  border: 1px solid var(--bordo);
+  border-radius: var(--raggio);
+  background: var(--carta-scheda);
+}
+
+.contributi h2,
+.storia h2 {
+  font-family: var(--sans);
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.14em;
+  color: var(--inchiostro-tenue);
+  margin-bottom: 1rem;
+}
+
+.contributi ol {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 1.1rem;
+}
+
+.contributi li {
+  border-left: 2px solid color-mix(in srgb, var(--accento) 40%, transparent);
+  padding-left: 0.9rem;
+}
+
+.contributo__testo {
+  margin: 0;
+  font-family: var(--serif);
+  font-size: 1.08rem;
+}
+
+.contributo__firma {
+  margin: 0.25rem 0 0;
+  font-size: 0.78rem;
+  color: var(--inchiostro-tenue);
+  letter-spacing: 0.03em;
+}
+
+.storia {
+  margin-top: 2.5rem;
+  padding-top: 1.5rem;
+  border-top: 1px solid var(--bordo);
+  font-size: 0.9rem;
+}
+
+.storia__sommario {
+  margin: 0;
+  font-variant-numeric: tabular-nums;
+}
+
+.storia__contributori {
+  margin: 0.2rem 0 0;
+  color: var(--inchiostro-tenue);
+}
+
+.storia details {
+  margin-top: 0.9rem;
+}
+
+.storia summary {
+  cursor: pointer;
+  font-size: 0.82rem;
+  color: var(--inchiostro-tenue);
+}
+
+.storia__voci {
+  list-style: none;
+  margin: 0.9rem 0 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+  font-size: 0.85rem;
+}
+
+.storia__voci li {
+  display: grid;
+  grid-template-columns: 5.5rem 1fr;
+  gap: 0.2rem 0.8rem;
+  align-items: baseline;
+}
+
+.storia__voci code {
+  font-size: 0.78rem;
+  color: var(--accento);
+}
+
+.storia__meta {
+  grid-column: 2;
+  font-size: 0.78rem;
+  color: var(--inchiostro-tenue);
+}
+
 /* ---------- Avviso ricette di prova -------------------------------------- */
 
 .avviso {

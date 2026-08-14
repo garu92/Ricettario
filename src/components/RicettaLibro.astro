@@ -1,8 +1,15 @@
 ---
 import { render } from 'astro:content';
 import FotoPassaggioLibro from './FotoPassaggioLibro.astro';
-import { formattaDose, formattaDurata, formattaPorzioni, tempoTotale } from '../lib/formato';
-import type { Ricetta } from '../lib/ricettario';
+import {
+  formattaData,
+  formattaDose,
+  formattaDurata,
+  formattaPorzioni,
+  tempoTotale,
+} from '../lib/formato';
+import { mappaAutori, risolviContributori, type Ricetta } from '../lib/ricettario';
+import { storiaRicetta } from '../lib/storia';
 
 interface Props {
   ricetta: Ricetta;
@@ -12,6 +19,11 @@ interface Props {
 const { ricetta, autore } = Astro.props;
 const d = ricetta.data;
 const { Content } = await render(ricetta);
+const storia = storiaRicetta(ricetta.id);
+const autoriPerId = await mappaAutori();
+const contributori = await risolviContributori(storia.contributori);
+
+const contributi = [...d.contributi].sort((a, b) => b.data.getTime() - a.data.getTime());
 
 const dati = [
   { etichetta: 'Porzioni', valore: formattaPorzioni(d.porzioni, d.unitaPorzioni) },
@@ -116,9 +128,38 @@ const dati = [
     )
   }
 
+  {
+    contributi.length > 0 && (
+      <section class="contributi-libro">
+        <h4>Contributi</h4>
+        <ol>
+          {contributi.map((c) => (
+            <li>
+              <span class="contributo-testo">{c.testo}</span>
+              <span class="contributo-firma">
+                {autoriPerId.get(c.autore.id)?.data.nome ?? c.autore.id} · {formattaData(c.data)}
+              </span>
+            </li>
+          ))}
+        </ol>
+      </section>
+    )
+  }
+
   <div class="corpo-libero">
     <Content />
   </div>
 
-  {d.fonte && <p class="pie-ricetta">Fonte: {d.fonte}</p>}
+  <p class="pie-ricetta">
+    {d.fonte && <>Fonte: {d.fonte}. </>}
+    {
+      storia.revisione > 0 && (
+        <>
+          Revisione {storia.revisione}
+          {storia.ultima && <>, aggiornata il {formattaData(storia.ultima)}</>}
+          {contributori.length > 0 && <> · {contributori.join(', ')}</>}
+        </>
+      )
+    }
+  </p>
 </article>

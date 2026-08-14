@@ -1,0 +1,51 @@
+---
+import { formattaData } from '../lib/formato';
+import { storiaRicetta } from '../lib/storia';
+import { risolviContributori, type Ricetta } from '../lib/ricettario';
+
+/**
+ * La storia della ricetta letta da git: quante revisioni, quando, e per mano di chi.
+ * Non c'è niente da tenere aggiornato a mano — è la stessa storia del repository.
+ */
+
+interface Props {
+  ricetta: Ricetta;
+}
+
+const storia = storiaRicetta(Astro.props.ricetta.id);
+const contributori = await risolviContributori(storia.contributori);
+---
+
+{
+  storia.revisione > 0 && (
+    <section class="storia">
+      <h2>Storia della ricetta</h2>
+      <p class="storia__sommario">
+        <strong>Revisione {storia.revisione}</strong>
+        {storia.ultima && <> · aggiornata il {formattaData(storia.ultima)}</>}
+        {storia.prima && storia.revisione > 1 && (
+          <> · nel ricettario dal {formattaData(storia.prima)}</>
+        )}
+      </p>
+
+      {contributori.length > 0 && (
+        <p class="storia__contributori">Ci hanno messo mano: {contributori.join(', ')}</p>
+      )}
+
+      <details>
+        <summary>Vedi tutte le modifiche</summary>
+        <ol class="storia__voci">
+          {storia.voci.map((v) => (
+            <li>
+              <code>{v.hash}</code>
+              <span class="storia__messaggio">{v.messaggio}</span>
+              <span class="storia__meta">
+                {v.autore} · {formattaData(v.data)}
+              </span>
+            </li>
+          ))}
+        </ol>
+      </details>
+    </section>
+  )
+}

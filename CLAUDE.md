@@ -16,6 +16,12 @@ italiano: nomi di file, variabili, commenti e testi dell'interfaccia.
   sotto `/Ricettario/` su GitHub Pages: un link scritto a mano funziona solo in uno dei due casi.
 - **Non toccare a mano `src/data/versione.json` né i tag `v*`:** li scrive
   `scripts/calcola-versione.mjs` dalla CI.
+- **La versione di una ricetta non si scrive a mano: si legge da git.** `src/lib/storia.ts`
+  esegue `git log --follow` sul file della ricetta in fase di build e ne ricava revisione,
+  date e contributori (compresi i `Co-authored-by:`). Non aggiungere un campo `versione` al
+  frontmatter: sarebbe una seconda verità che si disallinea al primo commit dimenticato.
+  Da non confondere con `contributi`, che sono invece note firmate scritte a mano e fanno
+  parte del contenuto stampato.
 - **Le foto stanno in `public/foto/<slug>/`** e si citano nel frontmatter del passaggio
   (`foto: /foto/<slug>/passo-1.jpg`). `src/lib/foto.ts` controlla a build time se il file
   esiste: se manca, si mostra un riquadro tratteggiato invece di un'immagine rotta, così una

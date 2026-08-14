@@ -72,6 +72,21 @@ ingredienti:
       - { nome: Ricotta, quantita: 700, unita: g, note: scolata una notte }
 ```
 
+## Aggiungere un contributo a una ricetta esistente
+
+Quando qualcuno migliora una ricetta già scritta, **non si riscrive il passaggio**: si aggiunge
+un contributo firmato, così resta memoria di chi ha proposto cosa e quando.
+
+```yaml
+contributi:
+  - autore: gianna-protti
+    data: 2026-09-03
+    testo: Con la pasta di Gragnano la crema regge meglio.
+```
+
+L'autore deve avere la sua scheda in `src/content/autori/`. La revisione della ricetta non va
+toccata: la calcola git dalla storia del file.
+
 ## Le foto dei passaggi
 
 I file stanno in `public/foto/<slug-della-ricetta>/`, e nel frontmatter si scrive il percorso

@@ -92,6 +92,21 @@ const ricette = defineCollection({
     ingredienti,
     passaggi,
 
+    /**
+     * Le migliorie aggiunte nel tempo da chi la ricetta l'ha rifatta: una riga per
+     * contributo, firmata e datata. È la memoria delle iterazioni, quella che di solito
+     * si perde nei messaggi o resta scritta a matita sul quaderno.
+     */
+    contributi: z
+      .array(
+        z.object({
+          autore: reference('autori'),
+          data: z.coerce.date(),
+          testo: z.string().min(1),
+        }),
+      )
+      .default([]),
+
     conservazione: z.string().optional(),
     /** Consigli, varianti, ricordi di famiglia. Il corpo Markdown serve per note più lunghe. */
     note: z.string().optional(),
@@ -120,6 +135,11 @@ const autori = defineCollection({
     nota: z.string().optional(),
     /** Ordine di comparsa nella pagina autori; a parità vince l'ordine alfabetico. */
     ordine: z.number().default(100),
+    /**
+     * Nomi e indirizzi email usati da questa persona nei commit git, per collegare
+     * la storia dei file alla sua scheda: `alias: [Giulio, giulio.marano@gmail.com]`.
+     */
+    alias: z.array(z.string()).default([]),
     esempio: z.boolean().default(false),
   }),
 });

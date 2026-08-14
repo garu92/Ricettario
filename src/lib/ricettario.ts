@@ -43,6 +43,28 @@ export async function mappaAutori(): Promise<Map<string, Autore>> {
   return new Map(autori.map((a) => [a.id, a]));
 }
 
+/**
+ * Traduce i nomi che compaiono nei commit git nel nome della scheda autore
+ * corrispondente, seguendo il campo `alias`. Chi non ha una scheda resta com'è:
+ * meglio un nome grezzo che un contributo attribuito alla persona sbagliata.
+ */
+export async function risolviContributori(nomi: string[]): Promise<string[]> {
+  const autori = await getCollection('autori');
+  const perAlias = new Map<string, string>();
+
+  for (const a of autori) {
+    perAlias.set(a.data.nome.toLowerCase(), a.data.nome);
+    for (const alias of a.data.alias) perAlias.set(alias.toLowerCase(), a.data.nome);
+  }
+
+  const risolti: string[] = [];
+  for (const nome of nomi) {
+    const risolto = perAlias.get(nome.trim().toLowerCase()) ?? nome.trim();
+    if (!risolti.includes(risolto)) risolti.push(risolto);
+  }
+  return risolti;
+}
+
 /** Nome dell'autore a partire dal riferimento della ricetta. */
 export async function nomeAutore(idAutore: string): Promise<string> {
   const mappa = await mappaAutori();
