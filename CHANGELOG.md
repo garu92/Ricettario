@@ -2,6 +2,12 @@
 
 Ogni push su `main` produce una nuova edizione del ricettario, con il PDF rigenerato.
 
+## v0.5.0 — 2026-08-14
+
+### Modifiche al ricettario
+
+- feat: contributi firmati e versione di ogni ricetta
+
 ## v0.4.0 — 2026-08-14
 
 ### Modifiche al ricettario
