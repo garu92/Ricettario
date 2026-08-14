@@ -2,6 +2,12 @@
 
 Ogni push su `main` produce una nuova edizione del ricettario, con il PDF rigenerato.
 
+## v0.4.0 — 2026-08-14
+
+### Modifiche al ricettario
+
+- feat: immagini segnaposto con la scritta "Foto non ufficiale"
+
 ## v0.3.0 — 2026-08-11
 
 ### Ricette aggiunte
