@@ -84,6 +84,12 @@ contributi:
     testo: Con 2 tuorli e 2 uova intere viene più leggera, per chi la vuole meno ricca.
 ```
 
+Non serve aprire l'editor sul computer: sotto ogni ricetta c'è il pulsante **Aggiungi un
+contributo**, che apre quel file nell'editor web di GitHub già pronto da modificare, con le
+istruzioni e il blocco da incollare. Chi ha accesso al repository può scrivere la sua nota dal
+browser, anche dal telefono; il commit finisce nella storia della ricetta e al deploy successivo
+la nota è sul sito e nel PDF.
+
 **La versione** invece non si scrive: viene letta da git. Ogni ricetta è un file versionato,
 quindi «revisione 3, aggiornata il 12 ottobre, ci hanno messo mano Giulio e Gianna» è già
 scritto nella storia del repository. Sulla pagina della ricetta trovi l'etichetta `rev. 3`

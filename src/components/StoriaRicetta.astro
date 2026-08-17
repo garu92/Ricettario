@@ -1,6 +1,7 @@
 ---
 import { formattaData } from '../lib/formato';
 import { storiaRicetta } from '../lib/storia';
+import { urlStoriaRicetta } from '../data/repository';
 import { risolviContributori, type Ricetta } from '../lib/ricettario';
 
 /**
@@ -12,7 +13,8 @@ interface Props {
   ricetta: Ricetta;
 }
 
-const storia = storiaRicetta(Astro.props.ricetta.id);
+const ricetta = Astro.props.ricetta;
+const storia = storiaRicetta(ricetta.id);
 const contributori = await risolviContributori(storia.contributori);
 ---
 
@@ -33,7 +35,12 @@ const contributori = await risolviContributori(storia.contributori);
       )}
 
       <details>
-        <summary>Vedi tutte le modifiche</summary>
+        <summary>
+          Vedi tutte le modifiche
+          <a href={urlStoriaRicetta(ricetta.id)} target="_blank" rel="noopener">
+            (su GitHub, riga per riga)
+          </a>
+        </summary>
         <ol class="storia__voci">
           {storia.voci.map((v) => (
             <li>

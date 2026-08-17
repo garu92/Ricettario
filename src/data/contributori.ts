@@ -10,6 +10,9 @@
 export const CONTRIBUTORI_NASCOSTI: string[] = [
   'github-actions[bot]',
   '41898282+github-actions[bot]@users.noreply.github.com',
+  // Ha scritto i file, ma il ricettario elenca le persone di famiglia.
+  // Resta nella storia git, che non viene riscritta.
+  'Claude Opus 5',
 ];
 
 export function daNascondere(nome: string): boolean {

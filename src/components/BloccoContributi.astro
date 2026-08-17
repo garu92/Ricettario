@@ -1,10 +1,15 @@
 ---
 import { formattaData } from '../lib/formato';
+import { urlModificaRicetta } from '../data/repository';
 import { mappaAutori, type Ricetta } from '../lib/ricettario';
 
 /**
  * I contributi aggiunti alla ricetta nel tempo: migliorie, varianti provate, correzioni
  * di dose. Sono contenuto a tutti gli effetti, quindi finiscono anche nel libro stampato.
+ *
+ * Il riquadro compare sempre, anche quando i contributi sono zero: è lì che si trova il
+ * pulsante per aggiungerne uno, e una ricetta senza contributi è proprio quella che ne ha
+ * più bisogno.
  */
 
 interface Props {
@@ -19,12 +24,19 @@ const autori = await mappaAutori();
 const contributi = [...ricetta.data.contributi].sort(
   (a, b) => b.data.getTime() - a.data.getTime(),
 );
+
+const oggi = new Date().toISOString().slice(0, 10);
+const esempio = `contributi:
+  - autore: ${ricetta.data.autore.id}
+    data: ${oggi}
+    testo: La tua nota, in una o due righe.`;
 ---
 
-{
-  contributi.length > 0 && (
-    <section class="contributi">
-      <h2>{titolo}</h2>
+<section class="contributi">
+  <h2>{titolo}</h2>
+
+  {
+    contributi.length > 0 ? (
       <ol>
         {contributi.map((c) => (
           <li>
@@ -35,6 +47,34 @@ const contributi = [...ricetta.data.contributi].sort(
           </li>
         ))}
       </ol>
-    </section>
-  )
-}
+    ) : (
+      <p class="contributi__vuoto">
+        Nessun contributo, per ora. Se rifacendola hai scoperto qualcosa — una dose da
+        correggere, una variante che funziona — è il posto giusto dove scriverlo.
+      </p>
+    )
+  }
+
+  <div class="contributi__aggiungi">
+    <a class="pulsante" href={urlModificaRicetta(ricetta.id)} target="_blank" rel="noopener">
+      Aggiungi un contributo
+    </a>
+    <details>
+      <summary>Come si fa</summary>
+      <ol class="istruzioni">
+        <li>Il pulsante apre questa ricetta nell'editor di GitHub, già pronta da modificare.</li>
+        <li>
+          Incolla il blocco qui sotto <strong>prima della riga <code>tag:</code></strong>, e
+          cambia autore, data e testo. Se <code>contributi:</code> c'è già, aggiungi solo le
+          tre righe che iniziano con <code>- autore:</code>.
+        </li>
+        <li>In fondo alla pagina, «Commit changes». Il sito e il PDF si aggiornano da soli.</li>
+      </ol>
+      <pre><code>{esempio}</code></pre>
+      <p class="istruzioni__nota">
+        L'autore deve avere la sua scheda in <code>src/content/autori/</code>. La revisione
+        della ricetta non va toccata: la calcola git.
+      </p>
+    </details>
+  </div>
+</section>

@@ -418,7 +418,8 @@ img {
   margin-bottom: 1rem;
 }
 
-.contributi ol {
+/* Solo la lista dei contributi veri: le istruzioni annidate hanno il loro stile. */
+.contributi > ol {
   list-style: none;
   margin: 0;
   padding: 0;
@@ -427,7 +428,7 @@ img {
   gap: 1.1rem;
 }
 
-.contributi li {
+.contributi > ol > li {
   border-left: 2px solid color-mix(in srgb, var(--accento) 40%, transparent);
   padding-left: 0.9rem;
 }
@@ -443,6 +444,75 @@ img {
   font-size: 0.78rem;
   color: var(--inchiostro-tenue);
   letter-spacing: 0.03em;
+}
+
+.contributi__vuoto {
+  margin: 0;
+  color: var(--inchiostro-tenue);
+  font-family: var(--serif);
+  font-size: 1.05rem;
+  max-width: 56ch;
+}
+
+.contributi__aggiungi {
+  margin-top: 1.4rem;
+  padding-top: 1.2rem;
+  border-top: 1px dashed var(--bordo);
+}
+
+.pulsante {
+  display: inline-block;
+  font-family: var(--sans);
+  font-size: 0.88rem;
+  font-weight: 500;
+  text-decoration: none;
+  padding: 0.5rem 1.1rem;
+  border-radius: 999px;
+  border: 1px solid color-mix(in srgb, var(--accento) 45%, transparent);
+  color: var(--accento);
+  background: var(--accento-tenue);
+}
+
+.pulsante:hover {
+  border-color: var(--accento);
+  background: color-mix(in srgb, var(--accento) 14%, transparent);
+}
+
+.contributi__aggiungi details {
+  margin-top: 0.9rem;
+}
+
+.contributi__aggiungi summary {
+  cursor: pointer;
+  font-size: 0.82rem;
+  color: var(--inchiostro-tenue);
+}
+
+.istruzioni {
+  margin: 0.9rem 0 0;
+  padding-left: 1.2rem;
+  font-size: 0.88rem;
+  color: var(--inchiostro-tenue);
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+}
+
+.contributi__aggiungi pre {
+  margin: 0.9rem 0 0;
+  padding: 0.9rem 1rem;
+  background: var(--carta-alt);
+  border: 1px solid var(--bordo);
+  border-radius: var(--raggio);
+  overflow-x: auto;
+  font-size: 0.82rem;
+  line-height: 1.5;
+}
+
+.istruzioni__nota {
+  margin: 0.7rem 0 0;
+  font-size: 0.8rem;
+  color: var(--inchiostro-tenue);
 }
 
 .storia {
@@ -920,7 +990,9 @@ img {
   .testata,
   .fondo,
   .ricetta__briciole,
-  .avviso {
+  .avviso,
+  .contributi__aggiungi,
+  .storia details {
     display: none !important;
   }
 
