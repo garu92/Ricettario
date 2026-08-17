@@ -2,6 +2,12 @@
 
 Ogni push su `main` produce una nuova edizione del ricettario, con il PDF rigenerato.
 
+## v0.6.0 — 2026-08-17
+
+### Modifiche al ricettario
+
+- feat: aggiungere un contributo dal sito, senza aprire l'editor
+
 ## v0.5.0 — 2026-08-14
 
 ### Modifiche al ricettario
