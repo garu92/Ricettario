@@ -1,6 +1,6 @@
 {
   "name": "ricettario-marano",
-  "version": "0.7.0",
+  "version": "0.7.1",
   "description": "Il ricettario della famiglia Marano: sito navigabile e libro PDF stampabile.",
   "type": "module",
   "private": true,
