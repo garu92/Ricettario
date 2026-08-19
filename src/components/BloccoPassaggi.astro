@@ -1,7 +1,7 @@
 ---
 import FotoPassaggio from './FotoPassaggio.astro';
-import { formattaDurata } from '../lib/formato';
-import type { Ricetta } from '../lib/ricettario';
+import { formattaData, formattaDurata } from '../lib/formato';
+import { mappaAutori, type Ricetta } from '../lib/ricettario';
 
 interface Props {
   ricetta: Ricetta;
@@ -10,6 +10,11 @@ interface Props {
 
 const { ricetta, titolo = 'Preparazione' } = Astro.props;
 const passaggi = ricetta.data.passaggi;
+const autori = await mappaAutori();
+
+/** Le note che qualcuno ha lasciato su un passaggio preciso, sotto quel passaggio. */
+const notePerPassaggio = (numero: number) =>
+  ricetta.data.contributi.filter((c) => c.passaggio === numero);
 ---
 
 <section class="blocco-passaggi">
@@ -32,6 +37,15 @@ const passaggi = ricetta.data.passaggi;
                 titoloRicetta={ricetta.data.titolo}
               />
             )}
+
+            {notePerPassaggio(i + 1).map((c) => (
+              <aside class="nota-passaggio">
+                <p>{c.testo}</p>
+                <p class="nota-passaggio__firma">
+                  {autori.get(c.autore.id)?.data.nome ?? c.autore.id} · {formattaData(c.data)}
+                </p>
+              </aside>
+            ))}
           </div>
         </li>
       ))

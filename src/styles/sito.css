@@ -446,6 +446,28 @@ img {
   letter-spacing: 0.03em;
 }
 
+/* Nota lasciata su un passaggio preciso, mostrata sotto quel passaggio. */
+.nota-passaggio {
+  margin-top: 0.8rem;
+  padding: 0.7rem 0.9rem;
+  border-left: 2px solid color-mix(in srgb, var(--accento) 40%, transparent);
+  background: var(--carta-alt);
+  border-radius: 0 var(--raggio) var(--raggio) 0;
+}
+
+.nota-passaggio p {
+  margin: 0;
+  font-family: var(--serif);
+  font-size: 1rem;
+}
+
+.nota-passaggio__firma {
+  margin-top: 0.2rem !important;
+  font-family: var(--sans);
+  font-size: 0.74rem;
+  color: var(--inchiostro-tenue);
+}
+
 .contributi__vuoto {
   margin: 0;
   color: var(--inchiostro-tenue);
@@ -1012,5 +1034,322 @@ img {
 
   .riquadro {
     break-inside: avoid;
+  }
+}
+
+
+/* -------------------------------------------------------------------------
+   Accesso all'editor (/modifica/)
+   Incollare il token e' l'unica cosa da fare in questa pagina: il campo ha
+   un'etichetta visibile e non solo un placeholder, altrimenti sembra una
+   casella di ricerca e non si trova.
+   ------------------------------------------------------------------------- */
+
+.campo-token__etichetta {
+  display: block;
+  margin-top: 1.4rem;
+  font-family: var(--sans);
+  font-size: 0.95rem;
+  font-weight: 600;
+}
+
+.campo-token__etichetta span {
+  display: block;
+  margin-top: 0.15rem;
+  font-weight: 400;
+  font-size: 0.82rem;
+  color: var(--inchiostro-tenue);
+}
+
+.campo-token {
+  margin-top: 0.5rem;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+}
+
+/* L'azione principale della pagina: piena, non solo contornata. */
+.pulsante--pieno {
+  background: var(--accento);
+  border-color: var(--accento);
+  color: var(--carta);
+  cursor: pointer;
+}
+
+.pulsante--pieno:hover {
+  background: color-mix(in srgb, var(--accento) 82%, black);
+  border-color: color-mix(in srgb, var(--accento) 82%, black);
+  color: var(--carta);
+}
+
+
+/* -------------------------------------------------------------------------
+   Editor della ricetta, dentro la pagina (EditorRicetta.astro)
+   Il pannello e' un banco di lavoro, non un modulo: sta nel flusso della
+   pagina, sotto i passaggi, e ogni passaggio e' una scheda con i suoi comandi
+   nell'angolo. Il riquadro e' visibile solo a chi ha il token.
+   ------------------------------------------------------------------------- */
+
+.editor {
+  margin-top: 2.5rem;
+}
+
+.editor__pannello {
+  margin-top: 1rem;
+  padding: 1.4rem;
+  border: 1px solid var(--bordo);
+  border-radius: var(--raggio);
+  background: var(--carta-alt);
+  box-shadow: var(--ombra);
+}
+
+.editor__testata h2 {
+  margin: 0;
+  font-size: 1.15rem;
+}
+
+.editor__testata p {
+  margin: 0.4rem 0 0;
+  font-size: 0.86rem;
+  line-height: 1.5;
+  color: var(--inchiostro-tenue);
+}
+
+.editor__passaggi {
+  display: flex;
+  flex-direction: column;
+  gap: 0.9rem;
+  margin-top: 1.4rem;
+}
+
+/* --- una scheda per passaggio --- */
+
+.editor-passo {
+  padding: 0.9rem 1rem 1rem;
+  border: 1px solid var(--bordo);
+  border-radius: var(--raggio);
+  background: var(--carta-scheda);
+}
+
+/* I passaggi aggiunti ora si distinguono da quelli gia' nella ricetta. */
+.editor-passo[data-nuovo] {
+  border-color: color-mix(in srgb, var(--oliva) 55%, transparent);
+  background: color-mix(in srgb, var(--oliva) 7%, var(--carta-scheda));
+}
+
+.editor-passo__testata {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.6rem;
+  margin-bottom: 0.6rem;
+}
+
+.editor-passo__numero {
+  font-family: var(--sans);
+  font-size: 0.74rem;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--inchiostro-tenue);
+}
+
+.editor-passo__azioni {
+  display: flex;
+  gap: 0.3rem;
+}
+
+.editor-passo__azioni button {
+  width: 1.9rem;
+  height: 1.9rem;
+  padding: 0;
+  font-size: 0.95rem;
+  line-height: 1;
+  border: 1px solid var(--bordo);
+  border-radius: 6px;
+  background: var(--carta);
+  color: var(--inchiostro);
+  cursor: pointer;
+}
+
+.editor-passo__azioni button:hover:not(:disabled) {
+  border-color: var(--accento);
+  color: var(--accento);
+}
+
+.editor-passo__azioni button:disabled {
+  opacity: 0.35;
+  cursor: default;
+}
+
+.editor-passo__elimina:hover:not(:disabled) {
+  border-color: var(--accento);
+  background: var(--accento-tenue);
+}
+
+.editor-passo__titolo,
+.editor-passo__testo,
+.editor-passo__durata,
+.editor-passo__nota,
+.editor__generale textarea,
+.editor__firma select {
+  width: 100%;
+  padding: 0.5rem 0.65rem;
+  font-family: inherit;
+  font-size: 0.92rem;
+  color: var(--inchiostro);
+  background: var(--carta);
+  border: 1px solid var(--bordo);
+  border-radius: 6px;
+}
+
+.editor-passo__titolo:focus-visible,
+.editor-passo__testo:focus-visible,
+.editor-passo__durata:focus-visible,
+.editor-passo__nota:focus-visible,
+.editor__generale textarea:focus-visible,
+.editor__firma select:focus-visible {
+  outline: 2px solid var(--accento);
+  outline-offset: 1px;
+}
+
+.editor-passo__testo,
+.editor-passo__nota {
+  margin-top: 0.5rem;
+  resize: vertical;
+  line-height: 1.5;
+}
+
+/* I minuti sono un numero corto: una casella larga tutta la riga mentirebbe. */
+.editor-passo__durata {
+  width: 6rem;
+}
+
+.editor-passo__durata-riga {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-top: 0.5rem;
+  font-family: var(--sans);
+  font-size: 0.84rem;
+  color: var(--inchiostro-tenue);
+}
+
+/* La nota e' un intervento firmato, non una correzione del testo: si stacca. */
+.editor-passo__nota {
+  margin-top: 0.7rem;
+  border-style: dashed;
+  background: transparent;
+}
+
+.editor__aggiungi-fondo {
+  width: 100%;
+  margin-top: 0.9rem;
+  padding: 0.6rem;
+  font-family: var(--sans);
+  font-size: 0.86rem;
+  color: var(--inchiostro-tenue);
+  background: transparent;
+  border: 1px dashed var(--bordo);
+  border-radius: var(--raggio);
+  cursor: pointer;
+}
+
+.editor__aggiungi-fondo:hover {
+  border-color: var(--accento);
+  color: var(--accento);
+}
+
+.editor__generale {
+  margin-top: 1.6rem;
+}
+
+.editor__generale label,
+.editor__firma label {
+  display: block;
+  margin-bottom: 0.35rem;
+  font-family: var(--sans);
+  font-size: 0.86rem;
+  font-weight: 600;
+}
+
+.editor__fondo {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 1rem;
+  margin-top: 1.6rem;
+  padding-top: 1.2rem;
+  border-top: 1px solid var(--bordo);
+}
+
+.editor__firma select {
+  width: auto;
+  min-width: 12rem;
+}
+
+.editor__azioni {
+  display: flex;
+  gap: 0.6rem;
+}
+
+.editor__azioni .pulsante {
+  cursor: pointer;
+}
+
+.editor__annulla {
+  font-family: var(--sans);
+  font-size: 0.88rem;
+  padding: 0.5rem 1.1rem;
+  color: var(--inchiostro-tenue);
+  background: transparent;
+  border: 1px solid var(--bordo);
+  border-radius: 999px;
+  cursor: pointer;
+}
+
+.editor__annulla:hover {
+  border-color: var(--inchiostro-tenue);
+  color: var(--inchiostro);
+}
+
+/* --- la riga di esito --- */
+
+.editor__stato {
+  margin: 1rem 0 0;
+  font-size: 0.88rem;
+  min-height: 1.3em;
+}
+
+.editor__stato:empty {
+  margin: 0;
+}
+
+.editor__stato[data-tipo='attesa'] {
+  color: var(--inchiostro-tenue);
+}
+
+.editor__stato[data-tipo='errore'] {
+  color: var(--accento);
+  font-weight: 500;
+}
+
+.editor__stato[data-tipo='fatto'] {
+  color: var(--oliva);
+  font-weight: 500;
+}
+
+@media (max-width: 34rem) {
+  .editor__pannello {
+    padding: 1rem;
+  }
+
+  .editor__fondo {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .editor__azioni .pulsante,
+  .editor__annulla {
+    flex: 1;
   }
 }

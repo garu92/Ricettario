@@ -23,6 +23,7 @@ export const urlRicetta = (id: string) => percorso('ricette', id);
 export const urlAutori = () => percorso('autori');
 export const urlCerca = () => percorso('cerca');
 export const urlStampa = () => percorso('stampa');
+export const urlModifica = () => percorso('modifica');
 
 /** Il PDF non passa da Astro: è un file statico servito da /pdf/. */
 export const urlPdf = () => percorso('pdf', 'ricettario-marano.pdf').replace(/\/$/, '');

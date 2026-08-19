@@ -9,7 +9,7 @@ import '../styles/sito.css';
 
 import { SEZIONI } from '../data/sezioni';
 import versione from '../data/versione.json';
-import { urlAutori, urlCerca, urlHome, urlPdf, urlSezione } from '../lib/percorsi';
+import { urlAutori, urlCerca, urlHome, urlModifica, urlPdf, urlSezione } from '../lib/percorsi';
 
 interface Props {
   titolo: string;
@@ -77,7 +77,8 @@ const percorsoCorrente = Astro.url.pathname;
         </p>
         <p class="versione-etichetta">
           Edizione <strong>v{versione.versione}</strong> del {versione.data}<br />
-          <a href={urlPdf()} download>Scarica il libro in PDF</a>
+          <a href={urlPdf()} download>Scarica il libro in PDF</a><br />
+          <a href={urlModifica()}>Accesso all'editor</a>
         </p>
       </div>
     </footer>

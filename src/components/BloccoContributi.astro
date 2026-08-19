@@ -20,10 +20,12 @@ interface Props {
 const { ricetta, titolo = 'Contributi' } = Astro.props;
 const autori = await mappaAutori();
 
+// Solo i contributi generali: quelli legati a un passaggio si leggono sotto il passaggio,
+// dove servono davvero, e ripeterli qui sarebbe solo rumore.
 // Dal più recente: l'ultima parola su una ricetta è quella che interessa per prima.
-const contributi = [...ricetta.data.contributi].sort(
-  (a, b) => b.data.getTime() - a.data.getTime(),
-);
+const contributi = ricetta.data.contributi
+  .filter((c) => c.passaggio === undefined)
+  .sort((a, b) => b.data.getTime() - a.data.getTime());
 
 const oggi = new Date().toISOString().slice(0, 10);
 const esempio = `contributi:

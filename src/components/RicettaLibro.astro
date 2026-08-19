@@ -23,7 +23,14 @@ const storia = storiaRicetta(ricetta.id);
 const autoriPerId = await mappaAutori();
 const contributori = await risolviContributori(storia.contributori);
 
-const contributi = [...d.contributi].sort((a, b) => b.data.getTime() - a.data.getTime());
+// Come sul sito: la nota legata a un passaggio si legge sotto quel passaggio, dove serve
+// davvero; in fondo restano solo quelle sulla ricetta nel suo insieme.
+const contributi = d.contributi
+  .filter((c) => c.passaggio === undefined)
+  .sort((a, b) => b.data.getTime() - a.data.getTime());
+
+const notePerPassaggio = (numero: number) =>
+  d.contributi.filter((c) => c.passaggio === numero);
 
 const dati = [
   { etichetta: 'Porzioni', valore: formattaPorzioni(d.porzioni, d.unitaPorzioni) },
@@ -104,6 +111,15 @@ const dati = [
                 titoloRicetta={d.titolo}
               />
             )}
+
+            {notePerPassaggio(i + 1).map((c) => (
+              <p class="nota-passo-libro">
+                {c.testo}
+                <span class="contributo-firma">
+                  {autoriPerId.get(c.autore.id)?.data.nome ?? c.autore.id} · {formattaData(c.data)}
+                </span>
+              </p>
+            ))}
           </div>
         </li>
       ))

@@ -103,6 +103,11 @@ const ricette = defineCollection({
           autore: reference('autori'),
           data: z.coerce.date(),
           testo: z.string().min(1),
+          /**
+           * Numero del passaggio a cui la nota si riferisce (1 = il primo). Assente
+           * quando il contributo riguarda la ricetta nel suo insieme.
+           */
+          passaggio: z.number().int().positive().optional(),
         }),
       )
       .default([]),

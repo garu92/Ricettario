@@ -1,0 +1,412 @@
+---
+import { RAMO, REPOSITORY } from '../data/repository';
+import { tuttiGliAutori, type Ricetta } from '../lib/ricettario';
+
+/**
+ * L'editor della ricetta, dentro la pagina.
+ *
+ * Il sito è statico e non ha un server: le modifiche vengono scritte direttamente su
+ * GitHub dal browser, con un token che resta in questo computer. Per questo il pulsante
+ * compare solo a chi il token ce l'ha: per tutti gli altri la pagina resta in sola lettura
+ * e non cambia di una virgola.
+ */
+
+interface Props {
+  ricetta: Ricetta;
+}
+
+const { ricetta } = Astro.props;
+const autori = await tuttiGliAutori();
+
+const configurazione = {
+  repository: REPOSITORY,
+  ramo: RAMO,
+  percorso: `src/content/ricette/${ricetta.id}.md`,
+  idRicetta: ricetta.id,
+  titolo: ricetta.data.titolo,
+  autori: autori.map((a) => ({ id: a.id, nome: a.data.nome })),
+};
+---
+
+<div class="editor" data-editor hidden>
+  <button type="button" class="pulsante" data-apri>Modifica questa ricetta</button>
+
+  <div class="editor__pannello" data-pannello hidden>
+    <header class="editor__testata">
+      <h2>Modifica ricetta</h2>
+      <p>
+        Puoi correggere il testo di un passaggio, aggiungerne o toglierne, e lasciare una nota
+        firmata su un passaggio o sulla ricetta intera. Salvando, la modifica viene scritta su
+        GitHub: il sito e il PDF si aggiornano da soli un paio di minuti dopo.
+      </p>
+    </header>
+
+    <div class="editor__passaggi" data-passaggi></div>
+
+    <button type="button" class="editor__aggiungi-fondo" data-aggiungi-fondo>
+      + Aggiungi un passaggio in fondo
+    </button>
+
+    <div class="editor__generale">
+      <label for="nota-generale">Nota sulla ricetta nel suo insieme</label>
+      <textarea
+        id="nota-generale"
+        data-nota-generale
+        rows="3"
+        placeholder="Facoltativa. Una variante provata, una dose da rivedere…"></textarea>
+    </div>
+
+    <footer class="editor__fondo">
+      <div class="editor__firma">
+        <label for="firma">Firma le note come</label>
+        <select id="firma" data-firma></select>
+      </div>
+      <div class="editor__azioni">
+        <button type="button" class="pulsante pulsante--pieno" data-salva>Salva su GitHub</button>
+        <button type="button" class="editor__annulla" data-annulla>Chiudi</button>
+      </div>
+    </footer>
+
+    <p class="editor__stato" data-stato role="status"></p>
+  </div>
+</div>
+
+<script type="application/json" data-configurazione-editor set:html={JSON.stringify(configurazione)} is:inline
+></script>
+
+<script>
+  import { dump, load } from 'js-yaml';
+  import {
+    applicaModifiche,
+    messaggioCommit,
+    ricomponiFile,
+    separaFrontmatter,
+    type FineRiga,
+    type PassaggioModificato,
+  } from '../lib/modifica-ricetta';
+
+  interface Configurazione {
+    repository: string;
+    ramo: string;
+    percorso: string;
+    idRicetta: string;
+    titolo: string;
+    autori: { id: string; nome: string }[];
+  }
+
+  const CHIAVE_TOKEN = 'ricettario:token';
+  const CHIAVE_FIRMA = 'ricettario:firma';
+
+  const radice = document.querySelector<HTMLElement>('[data-editor]');
+  const nodoConfigurazione = document.querySelector('[data-configurazione-editor]');
+  if (!radice || !nodoConfigurazione) throw new Error('editor senza configurazione');
+
+  const configurazione: Configurazione = JSON.parse(nodoConfigurazione.textContent ?? '{}');
+
+  const pannello = radice.querySelector<HTMLElement>('[data-pannello]')!;
+  const contenitorePassaggi = radice.querySelector<HTMLElement>('[data-passaggi]')!;
+  const campoNotaGenerale = radice.querySelector<HTMLTextAreaElement>('[data-nota-generale]')!;
+  const selettoreFirma = radice.querySelector<HTMLSelectElement>('[data-firma]')!;
+  const stato = radice.querySelector<HTMLElement>('[data-stato]')!;
+  const pulsanteApri = radice.querySelector<HTMLButtonElement>('[data-apri]')!;
+
+  /** Stato dell'editor: i passaggi come li sta vedendo chi modifica. */
+  let passaggi: (PassaggioModificato & { chiave: number })[] = [];
+  let frontmatterOriginale: Record<string, unknown> = {};
+  let corpoOriginale = '';
+  let fineRigaOriginale: FineRiga = '\n';
+  let shaFile = '';
+  let numeroPassaggiOriginali = 0;
+  let prossimaChiave = 0;
+
+  // ---------------------------------------------------------------------------
+  // Token e chiamate a GitHub
+
+  const token = () => localStorage.getItem(CHIAVE_TOKEN);
+
+  async function chiamaGitHub(metodo: 'GET' | 'PUT', corpo?: unknown) {
+    const url = `https://api.github.com/repos/${configurazione.repository}/contents/${configurazione.percorso}`;
+    const risposta = await fetch(metodo === 'GET' ? `${url}?ref=${configurazione.ramo}` : url, {
+      method: metodo,
+      headers: {
+        Authorization: `Bearer ${token()}`,
+        Accept: 'application/vnd.github+json',
+        'X-GitHub-Api-Version': '2022-11-28',
+      },
+      body: corpo ? JSON.stringify(corpo) : undefined,
+    });
+
+    if (!risposta.ok) {
+      const dettaglio = await risposta.json().catch(() => ({}));
+      throw new Error(`GitHub ha risposto ${risposta.status}: ${dettaglio.message ?? 'errore'}`);
+    }
+    return risposta.json();
+  }
+
+  /** base64 → testo, passando dai byte: i nomi con gli accenti vanno rispettati. */
+  function daBase64(base64: string): string {
+    const binario = atob(base64.replace(/\s/g, ''));
+    const byte = Uint8Array.from(binario, (c) => c.charCodeAt(0));
+    return new TextDecoder().decode(byte);
+  }
+
+  function aBase64(testo: string): string {
+    const byte = new TextEncoder().encode(testo);
+    let binario = '';
+    // A pezzi: passare un array intero a fromCharCode fa esplodere lo stack sui file grandi.
+    for (let i = 0; i < byte.length; i += 0x8000) {
+      binario += String.fromCharCode(...byte.subarray(i, i + 0x8000));
+    }
+    return btoa(binario);
+  }
+
+  // ---------------------------------------------------------------------------
+  // Interfaccia
+
+  function messaggio(testo: string, tipo: 'attesa' | 'errore' | 'fatto' | '' = '') {
+    stato.textContent = testo;
+    stato.dataset.tipo = tipo;
+  }
+
+  function disegnaPassaggi() {
+    contenitorePassaggi.replaceChildren(
+      ...passaggi.map((p, indice) => {
+        const blocco = document.createElement('article');
+        blocco.className = 'editor-passo';
+        if (p.originale === null) blocco.dataset.nuovo = 'si';
+
+        const testata = document.createElement('div');
+        testata.className = 'editor-passo__testata';
+
+        const etichetta = document.createElement('span');
+        etichetta.className = 'editor-passo__numero';
+        etichetta.textContent =
+          p.originale === null ? `Passaggio ${indice + 1} · nuovo` : `Passaggio ${indice + 1}`;
+
+        const azioni = document.createElement('div');
+        azioni.className = 'editor-passo__azioni';
+
+        const su = bottone('↑', 'Sposta su', () => sposta(indice, -1));
+        su.disabled = indice === 0;
+        const giu = bottone('↓', 'Sposta giù', () => sposta(indice, 1));
+        giu.disabled = indice === passaggi.length - 1;
+        const sotto = bottone('+', 'Aggiungi un passaggio sotto', () => aggiungi(indice + 1));
+        const elimina = bottone('×', 'Elimina questo passaggio', () => rimuovi(indice));
+        elimina.classList.add('editor-passo__elimina');
+
+        azioni.append(su, giu, sotto, elimina);
+        testata.append(etichetta, azioni);
+
+        const titolo = document.createElement('input');
+        titolo.type = 'text';
+        titolo.className = 'editor-passo__titolo';
+        titolo.placeholder = 'Titolo del passaggio (facoltativo)';
+        titolo.value = p.titolo ?? '';
+        titolo.addEventListener('input', () => (passaggi[indice].titolo = titolo.value));
+
+        const testo = document.createElement('textarea');
+        testo.className = 'editor-passo__testo';
+        testo.rows = 3;
+        testo.placeholder = 'Cosa fare, all’imperativo.';
+        testo.value = p.testo;
+        testo.addEventListener('input', () => (passaggi[indice].testo = testo.value));
+
+        const durata = document.createElement('input');
+        durata.type = 'number';
+        durata.min = '0';
+        durata.className = 'editor-passo__durata';
+        durata.placeholder = 'Minuti';
+        durata.value = p.durata !== undefined ? String(p.durata) : '';
+        durata.addEventListener('input', () => {
+          const n = Number.parseInt(durata.value, 10);
+          passaggi[indice].durata = Number.isNaN(n) ? undefined : n;
+        });
+
+        const nota = document.createElement('textarea');
+        nota.className = 'editor-passo__nota';
+        nota.rows = 2;
+        nota.placeholder = 'Lascia una nota firmata su questo passaggio (facoltativa)';
+        nota.value = p.nota ?? '';
+        nota.addEventListener('input', () => (passaggi[indice].nota = nota.value));
+
+        // Il numero da solo non dice di cosa: l'unita' resta scritta anche quando il
+        // placeholder sparisce, cioe' proprio quando un valore c'e'.
+        const rigaDurata = document.createElement('label');
+        rigaDurata.className = 'editor-passo__durata-riga';
+        const unita = document.createElement('span');
+        unita.textContent = 'minuti';
+        rigaDurata.append(durata, unita);
+
+        blocco.append(testata, titolo, testo, rigaDurata, nota);
+        return blocco;
+      }),
+    );
+  }
+
+  function bottone(simbolo: string, descrizione: string, azione: () => void) {
+    const b = document.createElement('button');
+    b.type = 'button';
+    b.textContent = simbolo;
+    b.title = descrizione;
+    b.setAttribute('aria-label', descrizione);
+    b.addEventListener('click', azione);
+    return b;
+  }
+
+  function aggiungi(posizione: number) {
+    passaggi.splice(posizione, 0, { chiave: prossimaChiave++, originale: null, testo: '' });
+    disegnaPassaggi();
+  }
+
+  function rimuovi(indice: number) {
+    const p = passaggi[indice];
+    const vuoto = !p.testo.trim();
+    if (!vuoto && !confirm(`Togliere il passaggio ${indice + 1}?`)) return;
+    passaggi.splice(indice, 1);
+    disegnaPassaggi();
+  }
+
+  function sposta(indice: number, direzione: number) {
+    const destinazione = indice + direzione;
+    if (destinazione < 0 || destinazione >= passaggi.length) return;
+    [passaggi[indice], passaggi[destinazione]] = [passaggi[destinazione], passaggi[indice]];
+    disegnaPassaggi();
+  }
+
+  // ---------------------------------------------------------------------------
+  // Apertura e salvataggio
+
+  async function apri() {
+    messaggio('Leggo la ricetta da GitHub…', 'attesa');
+    pannello.hidden = false;
+    pulsanteApri.hidden = true;
+
+    try {
+      const file = await chiamaGitHub('GET');
+      shaFile = file.sha;
+
+      const testo = daBase64(file.content);
+      const separato = separaFrontmatter(testo);
+      corpoOriginale = separato.corpo;
+      fineRigaOriginale = separato.fineRiga;
+      frontmatterOriginale = load(separato.frontmatter) as Record<string, unknown>;
+
+      const originali = Array.isArray(frontmatterOriginale.passaggi)
+        ? (frontmatterOriginale.passaggi as Record<string, unknown>[])
+        : [];
+      numeroPassaggiOriginali = originali.length;
+
+      passaggi = originali.map((p, i) => ({
+        chiave: prossimaChiave++,
+        originale: i,
+        titolo: typeof p.titolo === 'string' ? p.titolo : undefined,
+        testo: String(p.testo ?? ''),
+        durata: typeof p.durata === 'number' ? p.durata : undefined,
+      }));
+
+      disegnaPassaggi();
+      messaggio('');
+    } catch (errore) {
+      messaggio(`Non riesco a leggere la ricetta. ${(errore as Error).message}`, 'errore');
+    }
+  }
+
+  async function salva() {
+    const firma = selettoreFirma.value;
+    localStorage.setItem(CHIAVE_FIRMA, firma);
+
+    const modifiche = {
+      passaggi: passaggi.map(({ chiave, ...resto }) => resto),
+      notaGenerale: campoNotaGenerale.value,
+      autore: firma,
+      data: new Date().toISOString().slice(0, 10),
+    };
+
+    let contenuto: string;
+    try {
+      const nuovoFrontmatter = applicaModifiche(frontmatterOriginale, modifiche);
+      contenuto = ricomponiFile(
+        dump(nuovoFrontmatter, { lineWidth: 100, noRefs: true }),
+        corpoOriginale,
+        fineRigaOriginale,
+      );
+    } catch (errore) {
+      messaggio((errore as Error).message, 'errore');
+      return;
+    }
+
+    messaggio('Salvo su GitHub…', 'attesa');
+
+    try {
+      const risposta = await chiamaGitHub('PUT', {
+        message: messaggioCommit(
+          configurazione.titolo,
+          configurazione.idRicetta,
+          numeroPassaggiOriginali,
+          modifiche,
+        ),
+        content: aBase64(contenuto),
+        sha: shaFile,
+        branch: configurazione.ramo,
+      });
+
+      shaFile = risposta.content.sha;
+      campoNotaGenerale.value = '';
+      passaggi.forEach((p) => (p.nota = undefined));
+      // I passaggi appena aggiunti ora esistono nel file: da qui in poi non sono più nuovi.
+      passaggi = passaggi.map((p, i) => ({ ...p, originale: i }));
+      numeroPassaggiOriginali = passaggi.length;
+      disegnaPassaggi();
+
+      const url = risposta.commit.html_url;
+      messaggio('', 'fatto');
+      stato.append(
+        'Salvato. Il sito e il PDF si aggiornano fra un paio di minuti. ',
+        collegamento(url, 'Vedi la modifica'),
+      );
+    } catch (errore) {
+      const testo = (errore as Error).message;
+      messaggio(
+        testo.includes('409')
+          ? 'Qualcun altro ha modificato la ricetta nel frattempo. Ricarica la pagina e riprova, per non sovrascrivere il suo lavoro.'
+          : `Non sono riuscito a salvare. ${testo}`,
+        'errore',
+      );
+    }
+  }
+
+  function collegamento(href: string, testo: string) {
+    const a = document.createElement('a');
+    a.href = href;
+    a.target = '_blank';
+    a.rel = 'noopener';
+    a.textContent = testo;
+    return a;
+  }
+
+  // ---------------------------------------------------------------------------
+  // Avvio
+
+  for (const autore of configurazione.autori) {
+    const opzione = document.createElement('option');
+    opzione.value = autore.id;
+    opzione.textContent = autore.nome;
+    selettoreFirma.append(opzione);
+  }
+  const firmaSalvata = localStorage.getItem(CHIAVE_FIRMA);
+  if (firmaSalvata) selettoreFirma.value = firmaSalvata;
+
+  pulsanteApri.addEventListener('click', apri);
+  radice.querySelector('[data-salva]')!.addEventListener('click', salva);
+  radice.querySelector('[data-aggiungi-fondo]')!.addEventListener('click', () =>
+    aggiungi(passaggi.length),
+  );
+  radice.querySelector('[data-annulla]')!.addEventListener('click', () => {
+    pannello.hidden = true;
+    pulsanteApri.hidden = false;
+    messaggio('');
+  });
+
+  // Senza token la pagina resta esattamente com'era per chiunque altro.
+  if (token()) radice.hidden = false;
+</script>

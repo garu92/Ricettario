@@ -1,0 +1,179 @@
+---
+import Base from '../layouts/Base.astro';
+import { REPOSITORY } from '../data/repository';
+---
+
+<Base
+  titolo="Accesso all'editor"
+  descrizione="Configura l'accesso per modificare le ricette dal sito."
+>
+  <div class="contenitore">
+    <section class="sezione-blocco" style="max-width:44rem">
+      <h1>Accesso all'editor</h1>
+      <p class="ricetta__descrizione">
+        Con un token di GitHub salvato in questo browser, sulle pagine delle ricette compare il
+        pulsante <strong>Modifica questa ricetta</strong>: da lì si correggono i passaggi, se ne
+        aggiungono o tolgono, e si lasciano note firmate. Senza token il sito resta in sola
+        lettura, e per chiunque altro non cambia nulla.
+      </p>
+
+      <div class="riquadro" style="margin-top:2rem">
+        <h2>Come ottenere il token</h2>
+        <ol class="istruzioni" style="padding-left:1.2rem">
+          <li>
+            Vai su <a
+              href="https://github.com/settings/personal-access-tokens/new"
+              target="_blank"
+              rel="noopener">GitHub → token «fine-grained»</a
+            >.
+          </li>
+          <li>
+            In <em>Repository access</em> scegli <em>Only select repositories</em> e seleziona
+            solo <code>{REPOSITORY}</code>.
+          </li>
+          <li>
+            In <em>Permissions → Repository permissions</em> metti <strong>Contents</strong> su
+            <em>Read and write</em>. Lascia <strong>Metadata</strong> su <em>Read-only</em>: GitHub
+            lo seleziona da sé e non si può togliere, ma serve davvero — è quello che permette di
+            verificare il token qui sotto. Nient'altro.
+          </li>
+          <li>Dai una scadenza breve, genera il token e incollalo qui sotto.</li>
+        </ol>
+      </div>
+
+      <div class="riquadro" style="margin-top:1.5rem">
+        <h2>Il token in questo browser</h2>
+        <p id="stato-token" style="margin-top:0"></p>
+
+        <label class="campo-token__etichetta" for="campo-token">
+          Incolla qui il token
+          <span>Inizia con <code>github_pat_</code>. Mentre incolli vedrai dei pallini: è normale.</span>
+        </label>
+        <input
+          id="campo-token"
+          class="campo-ricerca campo-token"
+          type="password"
+          autocomplete="off"
+          spellcheck="false"
+          placeholder="github_pat_…"
+          data-repository={REPOSITORY}
+        />
+
+        <div style="display:flex;gap:.7rem;margin-top:1rem;flex-wrap:wrap">
+          <button type="button" class="pulsante pulsante--pieno" id="salva-token">
+            Salva e verifica
+          </button>
+          <button type="button" class="editor__annulla" id="cancella-token">
+            Cancella il token
+          </button>
+        </div>
+
+        <p id="esito" role="status" style="margin-top:1rem"></p>
+      </div>
+
+      <div class="avviso" style="margin-top:1.5rem">
+        <strong>Da sapere.</strong> Il token resta in questo browser, in <code>localStorage</code>:
+        chi usa questo computer può usarlo. Se lo perdi o cambi macchina, revocalo da GitHub — è
+        un clic, e con i permessi qui sopra può soltanto scrivere file in questo repository.
+      </div>
+    </section>
+  </div>
+
+  <script>
+    const CHIAVE = 'ricettario:token';
+    const campo = document.getElementById('campo-token') as HTMLInputElement;
+    const stato = document.getElementById('stato-token')!;
+    const esito = document.getElementById('esito')!;
+
+    function aggiornaStato() {
+      const presente = Boolean(localStorage.getItem(CHIAVE));
+      stato.textContent = presente
+        ? 'Token presente: il pulsante di modifica compare sulle ricette.'
+        : 'Nessun token salvato: le ricette sono in sola lettura.';
+    }
+
+    /**
+     * Ripulisce quello che è stato incollato.
+     *
+     * Copiando un token capita di portarsi dietro spazi unificatori, virgolette o caratteri
+     * a larghezza zero invisibili. Un solo carattere fuori da ASCII fa fallire `fetch` prima
+     * ancora di partire, perché le intestazioni HTTP non li ammettono: meglio toglierli qui
+     * e, se ne resta uno, dire quale invece di mostrare l'errore del browser.
+     */
+    function ripulisci(grezzo: string): string {
+      return grezzo
+        .replace(/[\u200b-\u200d\ufeff]/g, '') // caratteri a larghezza zero
+        .replace(/\s+/g, '') // spazi, a capo e spazi unificatori: un token non ne ha
+        .replace(/^["'\u201c\u201d\u2018\u2019]+|["'\u201c\u201d\u2018\u2019]+$/g, ''); // virgolette
+    }
+
+    /** Il primo carattere che non passerebbe in un'intestazione HTTP, con il suo codice. */
+    function caratteroImpossibile(valore: string): string | null {
+      for (const carattere of valore) {
+        const codice = carattere.codePointAt(0)!;
+        if (codice < 0x21 || codice > 0x7e) {
+          const esadecimale = codice.toString(16).toUpperCase().padStart(4, '0');
+          return `«${carattere}» (U+${esadecimale})`;
+        }
+      }
+      return null;
+    }
+
+    document.getElementById('salva-token')!.addEventListener('click', async () => {
+      const valore = ripulisci(campo.value);
+      if (!valore) {
+        esito.textContent = 'Incolla prima il token.';
+        return;
+      }
+
+      const intruso = caratteroImpossibile(valore);
+      if (intruso) {
+        esito.textContent =
+          `Nel token c'è un carattere che non può starci: ${intruso}. ` +
+          'Di solito viene da un copia-incolla passato per un documento o una chat. ' +
+          'Ricopialo da GitHub con il pulsante di copia accanto al token, senza selezionarlo a mano.';
+        return;
+      }
+
+      esito.textContent = 'Verifico il token su GitHub…';
+      try {
+        // Si prova a leggere il repository: se il token non basta, meglio scoprirlo adesso
+        // che davanti a una ricetta modificata e non salvabile.
+        const repository = campo.dataset.repository;
+        const risposta = await fetch(`https://api.github.com/repos/${repository}`, {
+          headers: {
+            Authorization: `Bearer ${valore}`,
+            Accept: 'application/vnd.github+json',
+          },
+        });
+        if (!risposta.ok) {
+          // I codici che tornano qui vogliono dire cose diverse, e mandano a controllare
+          // punti diversi della pagina dei token: vale la pena distinguerli.
+          const spiegazioni: Record<number, string> = {
+            401: 'Token non riconosciuto: potrebbe essere scaduto, revocato, o incollato a metà. Rigeneralo su GitHub e riprova.',
+            403: 'Token riconosciuto, ma senza i permessi giusti. Controlla che Contents sia su Read and write.',
+            404: `Token valido, ma non vede il repository ${repository}. In Repository access deve essere selezionato proprio quello.`,
+          };
+          esito.textContent =
+            spiegazioni[risposta.status] ??
+            `GitHub ha risposto ${risposta.status}. Controlla permessi e repository selezionato.`;
+          return;
+        }
+        localStorage.setItem(CHIAVE, valore);
+        campo.value = '';
+        aggiornaStato();
+        esito.textContent = 'Token valido e salvato. Apri una ricetta e troverai il pulsante.';
+      } catch (errore) {
+        esito.textContent = `Non riesco a contattare GitHub: ${(errore as Error).message}`;
+      }
+    });
+
+    document.getElementById('cancella-token')!.addEventListener('click', () => {
+      localStorage.removeItem(CHIAVE);
+      aggiornaStato();
+      esito.textContent = 'Token cancellato da questo browser.';
+    });
+
+    aggiornaStato();
+  </script>
+</Base>

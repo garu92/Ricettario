@@ -45,6 +45,28 @@ pagina dell'indice. Due trappole già incontrate:
 Per controllare il risultato: `npm run pdf`, poi apri `public/pdf/ricettario-marano.pdf`.
 La stessa impaginazione si vede nel browser su `/stampa/`, pagina per pagina.
 
+## L'editor dentro la pagina
+
+`src/components/EditorRicetta.astro` permette di correggere una ricetta dal sito: testo dei
+passaggi, ordine, aggiunta e rimozione, più note firmate. Il sito è statico e non ha un server:
+scrive direttamente su GitHub con le API Contents, dal browser, usando un token che sta in
+`localStorage` (si incolla su `/modifica/`). Senza token il riquadro resta `hidden` e per
+chiunque altro la pagina non cambia di una virgola.
+
+- **La riscrittura del file non sta nel componente, sta in `src/lib/modifica-ricetta.ts`**, che
+  è puro e senza dipendenze. È il pezzo che può corrompere una ricetta, quindi ha le sue prove:
+  `npm run prova` (`scripts/prova-modifiche.mjs`). Se tocchi il motore, le prove vanno prima.
+- **La convenzione di fine riga del file va conservata.** `separaFrontmatter` restituisce anche
+  `fineRiga` e `ricomponiFile` la vuole indietro: su Windows git consegna i file con CRLF, e
+  riscriverli con l'altra convenzione trasformerebbe una nota di due righe in un diff che tocca
+  tutta la ricetta.
+- **Le note firmate diventano `contributi`**, non testo dei passaggi: una nota su un passaggio
+  porta `passaggio: <numero>` e si legge sotto quel passaggio, sul sito e nel libro; senza quel
+  campo è una nota sulla ricetta intera e finisce in fondo. Se il passaggio viene tolto, la sua
+  nota non si perde: diventa generale.
+- **Il token non entra mai nel repository.** Sta nel browser, e i permessi richiesti sono
+  `Contents: Read and write` più `Metadata: Read-only`, sul solo repository del ricettario.
+
 ## Comandi utili
 
 ```bash
@@ -53,6 +75,7 @@ npm run build            # build + validazione delle ricette
 npm run pdf              # build + PDF del libro
 npm run versione         # anteprima della prossima edizione
 npm run rimuovi-esempi   # elenca le ricette di prova
+npm run prova            # prove sul motore delle modifiche
 ```
 
 ## Skill disponibili

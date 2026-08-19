@@ -16,18 +16,19 @@
     "segnaposto": "node scripts/genera-segnaposto.mjs",
     "rimuovi-esempi": "node scripts/rimuovi-esempi.mjs",
     "rimuovi-esempi:conferma": "node scripts/rimuovi-esempi.mjs --conferma",
+    "prova": "node scripts/prova-modifiche.mjs",
     "rilascio": "node scripts/calcola-versione.mjs --applica && npm run pdf"
   },
   "dependencies": {
     "@fontsource/eb-garamond": "^5.2.5",
     "@fontsource/inter": "^5.2.5",
     "astro": "^5.13.0",
+    "js-yaml": "^5.3.0",
     "pagedjs": "^0.4.3"
   },
   "devDependencies": {
     "@astrojs/check": "^0.9.10",
     "@types/node": "^26.2.0",
-    "js-yaml": "^5.3.0",
     "playwright": "^1.55.0",
     "typescript": "^5.9.2"
   },
