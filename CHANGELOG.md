@@ -2,6 +2,22 @@
 
 Ogni push su `main` produce una nuova edizione del ricettario, con il PDF rigenerato.
 
+## v0.7.1 — 2026-08-19
+
+### Ricette aggiornate
+
+- Pasta alla carbonara
+
+### Modifiche al ricettario
+
+- fix(pasta-alla-carbonara): Pasta alla carbonara — passaggi rivisti
+
+## v0.7.0 — 2026-08-19
+
+### Modifiche al ricettario
+
+- feat: modificare una ricetta dal sito, con note firmate
+
 ## v0.6.0 — 2026-08-17
 
 ### Modifiche al ricettario
