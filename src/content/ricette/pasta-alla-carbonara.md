@@ -42,8 +42,7 @@ ingredienti:
     unita: q.b.
   - nome: Acqua di cottura
     unita: q.b.
-    note: un goccio
-    per il composto: null
+    note: un goccio, per il composto
 passaggi:
   - titolo: I formaggi
     testo: Grattugia il pecorino e il parmigiano e tienili insieme in una ciotola.
