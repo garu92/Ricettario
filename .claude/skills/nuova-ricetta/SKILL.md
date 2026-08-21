@@ -109,6 +109,13 @@ le foto vere già in cartella.
   note: >-
     Il segreto è uno: la provola si unisce a fuoco spento.
   ```
+- **YAML e virgole dentro le graffe**: nella forma compatta `{ nome: ..., note: ... }` la virgola
+  separa i campi, quindi una nota che ne contiene una viene troncata **senza errori di build** —
+  il pezzo dopo la virgola diventa una chiave sconosciuta che lo schema scarta in silenzio.
+  Le virgolette risolvono:
+  ```yaml
+  - { nome: Fagioli, quantita: 250, unita: g, note: "già cotti, sgocciolati" }
+  ```
 - **Tempi sempre in minuti**, anche quelli lunghi: un giorno è `1440`, un mese è `43200`.
   Il sito li riscrive da solo in ore e giorni.
 - **Quantità numeriche**, senza unità dentro: `quantita: 500, unita: g`. Per gli ingredienti a
