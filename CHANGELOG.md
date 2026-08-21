@@ -2,6 +2,22 @@
 
 Ogni push su `main` produce una nuova edizione del ricettario, con il PDF rigenerato.
 
+## v0.8.0 — 2026-08-21
+
+### Ricette aggiunte
+
+- Pasta e fagioli
+
+### Ricette aggiornate
+
+- Pasta alla carbonara
+
+### Modifiche al ricettario
+
+- fix: la nota dell'acqua di cottura era stata troncata dalla virgola
+- docs: la virgola dentro le graffe YAML tronca le note in silenzio
+- feat: pasta e fagioli di Giulio Marano
+
 ## v0.7.1 — 2026-08-19
 
 ### Ricette aggiornate
