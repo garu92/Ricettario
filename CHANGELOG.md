@@ -2,6 +2,23 @@
 
 Ogni push su `main` produce una nuova edizione del ricettario, con il PDF rigenerato.
 
+## v0.9.0 — 2026-11-02
+
+### Ricette aggiunte
+
+- Arista di maiale al latte
+- Brasato di manzo
+- Crema pasticcera
+- Crostata di visciole
+- Pancakes
+- Pasta alla puttanesca
+- Pasta col tonno
+- Spezzatino con le patate
+
+### Modifiche al ricettario
+
+- feat: otto ricette base fra primi, secondi e dolci (#1)
+
 ## v0.8.0 — 2026-08-21
 
 ### Ricette aggiunte
