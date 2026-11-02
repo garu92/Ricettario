@@ -2,6 +2,17 @@
 
 Ogni push su `main` produce una nuova edizione del ricettario, con il PDF rigenerato.
 
+## v0.10.0 — 2026-11-02
+
+### Ricette aggiunte
+
+- Cappelletti in brodo
+- Roastbeef
+
+### Modifiche al ricettario
+
+- feat: cappelletti in brodo e roastbeef di Gianna Protti (#2)
+
 ## v0.9.0 — 2026-11-02
 
 ### Ricette aggiunte
